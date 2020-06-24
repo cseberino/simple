@@ -1,0 +1,54 @@
+Simple
+
+a minimal computer emulator and assembler
+
+The computer has 16 registers of which the first is the instruction pointer.
+The computer supports 32 bit words, a 32 bit address space, and, the following
+functions:
+
+        add
+        sub
+        and
+        or
+        zjump
+        gjump
+        copy
+        read
+        write
+        stop
+
+Instructions begin with four bits denoting functions followed by arguments.  All
+arguments are four bits denoting registers except for the first copy function
+argument which is 24 bits.
+
+The following table describes the behavior of all instructions.  The first
+column gives functions and arguments.  The other columns give the corresponding
+storage data and locations.  [r₁], [r₂] and [r₃] denote register naturals.
+S(<natural>) denotes the signed versions of the given naturals.  M(<address>)
+denotes the memory words at the given addresses.  ip denotes the instruction
+pointer:
+
+   instruction          storage data                            storage location
+
+    add(r₁, r₂, r₃)      ([r₁] + [r₂]) % 2³²                     r₃
+    sub(r₁, r₂, r₃)      ([r₁] - [r₂]) % 2³²                     r₃
+    and(r₁, r₂, r₃)      [r₁] & [r₂]                             r₃
+    or( r₁, r₂, r₃)      [r₁] | [r₂]                             r₃
+    copy(k, r₁)          k                                       r₁
+    zjump(r₁, r₂)        [r₂] - 4 if [r₁] = 0 else ip            ip
+    gjump(r₁, r₂, r₃)    [r₃] - 4 if S([r₁]) > S([r₂]) else ip   ip
+    read( r₁, r₂)        M([r₁])                                 r₂
+    write(r₁, r₂)        [r₁]                                    M([r₂])
+    stop()
+
+Assembly lines specify words unless they are blank, contain only whitespace, or,
+contain comments.  Comments are denoted with hashtags.
+
+Assembly data can be expressed in base ten or hexadecimal.  Hexadecimal data
+must begin with "0x".
+
+Assembly memory address aliases are defined when they occur at the beginnings of
+lines followed by colons.  They are set to the beginning addresses of the
+corresponding words.
+
+See the source code and other computer hardware resources for further details.

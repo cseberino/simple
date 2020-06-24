@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+#
+# Copyright 2020 Christian Seberino
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import textwrap
+import sys
+
+FUNCS     = ["add", "sub", "and_", "or_",
+                     "zjump", "gjump", "copy", "read", "write", "stop"]
+N_REGS    = 16
+IP        = 0
+BYTE_SIZE = 8
+WORD_SIZE = 4
+MOD_SIZE  = 2 ** (WORD_SIZE * BYTE_SIZE)
+
+def get_reg_args(word):
+        return word[0] & 0xf, word[1] >> (BYTE_SIZE // 2), word[1] & 0xf
+
+def get_signed(natural):
+        signed = natural
+        if signed >> WORD_SIZE * BYTE_SIZE - 1:
+                signed = -((~signed + 1) & (MOD_SIZE - 1))
+
+        return signed
+
+def get_word(beg, memory):
+        if len(memory) < beg + WORD_SIZE:
+                memory += (beg + WORD_SIZE - len(memory)) * b"\x00"
+
+        return memory[beg:beg + WORD_SIZE]
+
+def set_word(word, beg, memory):
+        if len(memory) < beg + WORD_SIZE:
+                memory += (beg + WORD_SIZE - len(memory)) * b"\x00"
+        memory[beg:beg + WORD_SIZE] = word
+
+def add(word, regs, memory):
+        a, b, c = get_reg_args(word)
+        regs[c] = (regs[a] + regs[b]) % MOD_SIZE
+
+def sub(word, regs, memory):
+        a, b, c = get_reg_args(word)
+        regs[c] = (regs[a] - regs[b]) % MOD_SIZE
+
+def and_(word, regs, memory):
+        a, b, c = get_reg_args(word)
+        regs[c] = regs[a] & regs[b]
+
+def or_(word, regs, memory):
+        a, b, c = get_reg_args(word)
+        regs[c] = regs[a] | regs[b]
+
+def copy(word, regs, memory):
+        a       = word[3] & 0xf
+        regs[a] = (int.from_bytes(word, "big") & 0x0ffffff0) >> (BYTE_SIZE // 2)
+
+def read(word, regs, memory):
+        a, b    = get_reg_args(word)[:2]
+        regs[b] = int.from_bytes(get_word(regs[a], memory), "big")
+
+def write(word, regs, memory):
+        a, b = get_reg_args(word)[:2]
+        set_word(regs[a].to_bytes(WORD_SIZE, "big"), regs[b], memory)
+
+def zjump(word, regs, memory):
+        a, b = get_reg_args(word)[:2]
+        if regs[a] == 0:
+                regs[IP] = regs[b] - WORD_SIZE
+
+def gjump(word, regs, memory):
+        a, b, c = get_reg_args(word)
+        if get_signed(regs[a]) > get_signed(regs[b]):
+                regs[IP] = regs[c] - WORD_SIZE
+
+def stop(word, regs, memory):
+        pass
+
+def step(regs, memory):
+        word      = get_word(regs[IP], memory)
+        func      = FUNCS[word[0] >> (BYTE_SIZE // 2)]
+        globals()[func](word, regs, memory)
+        regs[IP] += WORD_SIZE
+
+        return func
+
+regs   = N_REGS * [0]
+memory = bytearray(open(sys.argv[1], "rb").read())
+func   = step(regs, memory)
+while func != "stop":
+        func = step(regs, memory)
+print("registers:\n")
+for i in range(N_REGS):
+        print("\t{:>3}".format("r" + str(i)) + ": {:#010x}".format(regs[i]))
+print("\nmemory:\n")
+beg = 0
+for e in textwrap.wrap(memory.hex(), 2 * WORD_SIZE):
+        print("\t{:#010x}: 0x{:0>8}".format(beg, e))
+        beg += WORD_SIZE
