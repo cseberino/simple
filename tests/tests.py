@@ -16,9 +16,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import unittest
-import warnings
 import subprocess
 import importlib
+import warnings
 
 def get_code(program):
         open("__program__", "w").write(program)
