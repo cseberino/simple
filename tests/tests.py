@@ -16,6 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import unittest
+import warnings
 import subprocess
 import importlib
 
@@ -33,6 +34,9 @@ def create_emu_mod():
         open("__emulator__.py", "w").write("".join(contents[:-13]))
 
 class Tester(unittest.TestCase):
+        def setUp(self):
+                warnings.simplefilter("ignore", ResourceWarning)
+
         def test_add_assem(self):
                 program = \
 """
@@ -1404,5 +1408,4 @@ ans_e:  0x0
 """.lstrip()
                 self.assertEqual(output, answer)
 
-test_suite = unittest.makeSuite(Tester)
-unittest.TextTestRunner(verbosity = 2).run(test_suite)
+unittest.main()
