@@ -18,7 +18,7 @@
 import string
 import sys
 
-FUNCS     = ["add", "sub", "and", "or",
+FUNCS     = ["add", "sub", "mult", "div", "and", "or",
                      "zjump", "gjump", "copy", "read", "write", "stop"]
 NAT_SIZE  = 3
 NIBB_SIZE = 0.5

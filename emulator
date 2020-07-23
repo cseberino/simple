@@ -18,7 +18,7 @@
 import textwrap
 import sys
 
-FUNCS     = ["add", "sub", "and_", "or_",
+FUNCS     = ["add", "sub", "mult", "div", "and_", "or_",
                      "zjump", "gjump", "copy", "read", "write", "stop"]
 N_REGS    = 16
 IP        = 0
@@ -55,6 +55,14 @@ def sub(word, regs, memory):
         a, b, c = get_reg_args(word)
         regs[c] = (regs[a] - regs[b]) % MOD_SIZE
 
+def mult(word, regs, memory):
+        a, b, c = get_reg_args(word)
+        regs[c] = (regs[a] * regs[b]) % MOD_SIZE
+
+def div(word, regs, memory):
+        a, b, c = get_reg_args(word)
+        regs[c] = int(regs[a] / regs[b]) % MOD_SIZE
+
 def and_(word, regs, memory):
         a, b, c = get_reg_args(word)
         regs[c] = regs[a] & regs[b]
@@ -85,7 +93,7 @@ def gjump(word, regs, memory):
         if get_signed(regs[a]) > get_signed(regs[b]):
                 regs[IP] = regs[c] - WORD_SIZE
 
-def stop(word, regs, memory):
+def stop( word, regs, memory):
         pass
 
 def step(regs, memory):

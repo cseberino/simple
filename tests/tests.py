@@ -61,6 +61,30 @@ sub r6 r1 r2
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
+        def test_mult_assem(self):
+                program = \
+"""
+mult r2 r3 r4
+mult r6 r1 r2
+"""
+                output  = get_code(program)
+                answer  = "22340000"
+                answer += "26120000"
+                answer  = bytes.fromhex(answer)
+                self.assertEqual(output, answer)
+
+        def test_div_assem(self):
+                program = \
+"""
+div r2 r3 r4
+div r6 r1 r2
+"""
+                output  = get_code(program)
+                answer  = "32340000"
+                answer += "36120000"
+                answer  = bytes.fromhex(answer)
+                self.assertEqual(output, answer)
+
         def test_and_assem(self):
                 program = \
 """
@@ -68,8 +92,8 @@ and r2 r3 r4
 and r6 r1 r2
 """
                 output  = get_code(program)
-                answer  = "22340000"
-                answer += "26120000"
+                answer  = "42340000"
+                answer += "46120000"
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
@@ -80,8 +104,8 @@ or r2 r3 r4
 or r6 r1 r2
 """
                 output  = get_code(program)
-                answer  = "32340000"
-                answer += "36120000"
+                answer  = "52340000"
+                answer += "56120000"
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
@@ -92,8 +116,8 @@ zjump r1 r4
 zjump r8 r7
 """
                 output  = get_code(program)
-                answer  = "41400000"
-                answer += "48700000"
+                answer  = "61400000"
+                answer += "68700000"
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
@@ -104,8 +128,8 @@ gjump r1 r4 r11
 gjump r8 r7 r3
 """
                 output  = get_code(program)
-                answer  = "514b0000"
-                answer += "58730000"
+                answer  = "714b0000"
+                answer += "78730000"
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
@@ -118,10 +142,10 @@ copy 16724940 r2
 copy 0xaabbcc r4
 """
                 output  = get_code(program)
-                answer  = "600000f6"
-                answer += "600003f4"
-                answer += "6ff33cc2"
-                answer += "6aabbcc4"
+                answer  = "800000f6"
+                answer += "800003f4"
+                answer += "8ff33cc2"
+                answer += "8aabbcc4"
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
@@ -132,8 +156,8 @@ read r2 r3
 read r6 r1
 """
                 output  = get_code(program)
-                answer  = "72300000"
-                answer += "76100000"
+                answer  = "92300000"
+                answer += "96100000"
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
@@ -144,8 +168,8 @@ write r2 r3
 write r6 r1
 """
                 output  = get_code(program)
-                answer  = "82300000"
-                answer += "86100000"
+                answer  = "a2300000"
+                answer += "a6100000"
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
@@ -156,8 +180,8 @@ stop
 stop
 """
                 output  = get_code(program)
-                answer  = "90000000"
-                answer += "90000000"
+                answer  = "b0000000"
+                answer += "b0000000"
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
@@ -174,7 +198,7 @@ copy 16724940 r2
 """
                 output  = get_code(program)
                 answer  = "02340000"
-                answer += "6ff33cc2"
+                answer += "8ff33cc2"
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
@@ -202,10 +226,10 @@ alias_2: zjump r1 r2
                 answer += "12340000"
                 answer += "02340000"
                 answer += "06120000"
-                answer += "60000086"
-                answer += "41200000"
+                answer += "80000086"
+                answer += "61200000"
                 answer += "00000018"
-                answer += "90000000"
+                answer += "b0000000"
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
@@ -235,10 +259,10 @@ alias_2: zjump r1 r2
                 answer += "12340000"
                 answer += "02340000"
                 answer += "06120000"
-                answer += "60000086"
-                answer += "41200000"
+                answer += "80000086"
+                answer += "61200000"
                 answer += "00000018"
-                answer += "90000000"
+                answer += "b0000000"
                 answer += "0000000e"
                 answer += "0000abcd"
                 answer += "deadbeef"
@@ -342,6 +366,30 @@ alias_2: zjump r1 r2
                 output     = e.regs
                 answer     = list(range(10, 26))
                 answer[15] = 19 - 15
+                self.assertEqual(output, answer)
+
+        def test_mult_emul(self):
+                create_emu_mod()
+                import __emulator__ as e ; importlib.reload(e)
+                subprocess.call(["rm", "__emulator__.py"])
+
+                e.regs     = list(range(10, 26))
+                e.mult(bytes.fromhex("095f0000"), e.regs, None)
+                output     = e.regs
+                answer     = list(range(10, 26))
+                answer[15] = 19 * 15
+                self.assertEqual(output, answer)
+
+        def test_div_emul(self):
+                create_emu_mod()
+                import __emulator__ as e ; importlib.reload(e)
+                subprocess.call(["rm", "__emulator__.py"])
+
+                e.regs     = list(range(10, 26))
+                e.div(bytes.fromhex("095f0000"), e.regs, None)
+                output     = e.regs
+                answer     = list(range(10, 26))
+                answer[15] = int(19 / 15)
                 self.assertEqual(output, answer)
 
         def test_and_emul(self):
@@ -538,11 +586,11 @@ registers:
 
 memory:
 
-	0x00000000: 0x60000081
-	0x00000004: 0x60000092
-	0x00000008: 0x6aabbcca
+	0x00000000: 0x80000081
+	0x00000004: 0x80000092
+	0x00000008: 0x8aabbcca
 	0x0000000c: 0x01230000
-	0x00000010: 0x90000000
+	0x00000010: 0xb0000000
 """.lstrip()
                 self.assertEqual(output, answer)
 
@@ -583,12 +631,12 @@ registers:
 
 memory:
 
-	0x00000000: 0x60000081
-	0x00000004: 0x60000092
-	0x00000008: 0x6aabbcca
+	0x00000000: 0x80000081
+	0x00000004: 0x80000092
+	0x00000008: 0x8aabbcca
 	0x0000000c: 0x01230000
 	0x00000010: 0x1a140000
-	0x00000014: 0x90000000
+	0x00000014: 0xb0000000
 """.lstrip()
                 self.assertEqual(output, answer)
 
@@ -631,14 +679,14 @@ registers:
 
 memory:
 
-	0x00000000: 0x60000081
-	0x00000004: 0x60000092
-	0x00000008: 0x6aabbcca
+	0x00000000: 0x80000081
+	0x00000004: 0x80000092
+	0x00000008: 0x8aabbcca
 	0x0000000c: 0x01230000
 	0x00000010: 0x1a140000
-	0x00000014: 0x2a250000
-	0x00000018: 0x3a260000
-	0x0000001c: 0x90000000
+	0x00000014: 0x4a250000
+	0x00000018: 0x5a260000
+	0x0000001c: 0xb0000000
 """.lstrip()
                 self.assertEqual(output, answer)
 
@@ -684,16 +732,16 @@ registers:
 
 memory:
 
-	0x00000000: 0x60000081
-	0x00000004: 0x60000092
-	0x00000008: 0x6aabbcca
+	0x00000000: 0x80000081
+	0x00000004: 0x80000092
+	0x00000008: 0x8aabbcca
 	0x0000000c: 0x01230000
 	0x00000010: 0x1a140000
-	0x00000014: 0x2a250000
-	0x00000018: 0x3a260000
-	0x0000001c: 0x60000287
-	0x00000020: 0x77800000
-	0x00000024: 0x90000000
+	0x00000014: 0x4a250000
+	0x00000018: 0x5a260000
+	0x0000001c: 0x80000287
+	0x00000020: 0x97800000
+	0x00000024: 0xb0000000
 	0x00000028: 0xdeadbeef
 """.lstrip()
                 self.assertEqual(output, answer)
@@ -741,17 +789,17 @@ registers:
 
 memory:
 
-	0x00000000: 0x60000081
-	0x00000004: 0x60000092
-	0x00000008: 0x6adeadbe
+	0x00000000: 0x80000081
+	0x00000004: 0x80000092
+	0x00000008: 0x8adeadbe
 	0x0000000c: 0xef230000
 	0x00000010: 0x1a140000
-	0x00000014: 0x2a250000
-	0x00000018: 0x3a260000
-	0x0000001c: 0x600002c7
-	0x00000020: 0x77800000
-	0x00000024: 0x88200000
-	0x00000028: 0x90000000
+	0x00000014: 0x4a250000
+	0x00000018: 0x5a260000
+	0x0000001c: 0x800002c7
+	0x00000020: 0x97800000
+	0x00000024: 0xa8200000
+	0x00000028: 0xb0000000
 	0x0000002c: 0xdeadbeef
 """.lstrip()
                 self.assertEqual(output, answer)

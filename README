@@ -8,6 +8,8 @@ functions:
 
         add
         sub
+        mult
+        div
         and
         or
         zjump
@@ -30,10 +32,12 @@ pointer:
 
    instruction          storage data                            storage location
 
-    add(r₁, r₂, r₃)      ([r₁] + [r₂]) % 2³²                     r₃
-    sub(r₁, r₂, r₃)      ([r₁] - [r₂]) % 2³²                     r₃
-    and(r₁, r₂, r₃)      [r₁] & [r₂]                             r₃
-    or( r₁, r₂, r₃)      [r₁] | [r₂]                             r₃
+    add( r₁, r₂, r₃)     ([r₁] + [r₂]) % 2³²                     r₃
+    sub( r₁, r₂, r₃)     ([r₁] - [r₂]) % 2³²                     r₃
+    mult(r₁, r₂, r₃)     ([r₁] * [r₂]) % 2³²                     r₃
+    div( r₁, r₂, r₃)     ([r₁] / [r₂]) % 2³²                     r₃
+    and( r₁, r₂, r₃)     [r₁] & [r₂]                             r₃
+    or(  r₁, r₂, r₃)     [r₁] | [r₂]                             r₃
     copy(k, r₁)          k                                       r₁
     zjump(r₁, r₂)        [r₂] - 4 if [r₁] = 0 else ip            ip
     gjump(r₁, r₂, r₃)    [r₃] - 4 if S([r₁]) > S([r₂]) else ip   ip
