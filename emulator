@@ -108,5 +108,5 @@ for i in range(N_REGS):
 print("\nmemory:\n")
 beg = 0
 for e in textwrap.wrap(memory.hex(), 2 * WORD_SIZE):
-        print("\t{:#010x}: 0x{:0>8}".format(beg, e))
+        print("\t{:#010x}: 0x{:0<8}".format(beg, e))
         beg += WORD_SIZE

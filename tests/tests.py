@@ -871,6 +871,73 @@ registers:
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_lots_8(self):
+                program = \
+"""
+      copy  0x8      r1
+      copy  0x9      r2
+      copy  0xaabbcc r10
+      add   r1  r2 r3
+      sub   r10 r1 r4
+      mult  r1  r2 r5
+      div   r4  r3 r6
+      and   r6  r4 r7
+      or    r7  r1 r8
+      copy  data r9
+      load  r9   r10
+      add   r9   r2  r9
+      store r10  r9
+      stop
+data: 0xdeadbeef
+"""
+                open("__program__", "w").write(program)
+                subprocess.call(["../assembler", "__program__"])
+                output = subprocess.check_output(["../emulator",
+                                                  "__program__.mem"])
+                answer = \
+b"""
+registers:
+
+	 r0: 0x00000038
+	 r1: 0x00000008
+	 r2: 0x00000009
+	 r3: 0x00000011
+	 r4: 0x00aabbc4
+	 r5: 0x00000048
+	 r6: 0x000a0b0b
+	 r7: 0x000a0b00
+	 r8: 0x000a0b08
+	 r9: 0x00000041
+	r10: 0xdeadbeef
+	r11: 0x00000000
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+
+memory:
+
+	0x00000000: 0x80000081
+	0x00000004: 0x80000092
+	0x00000008: 0x8aabbcca
+	0x0000000c: 0x01230000
+	0x00000010: 0x1a140000
+	0x00000014: 0x21250000
+	0x00000018: 0x34360000
+	0x0000001c: 0x46470000
+	0x00000020: 0x57180000
+	0x00000024: 0x80000389
+	0x00000028: 0x99a00000
+	0x0000002c: 0x09290000
+	0x00000030: 0xaa900000
+	0x00000034: 0xb0000000
+	0x00000038: 0xdeadbeef
+	0x0000003c: 0x00000000
+	0x00000040: 0x00deadbe
+	0x00000044: 0xef000000
+""".lstrip()
+                self.assertEqual(output, answer)
+
         def test_func_calls(self):
                 program = \
 """
