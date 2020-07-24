@@ -19,7 +19,7 @@ import string
 import sys
 
 FUNCS     = ["add", "sub", "mult", "div", "and", "or",
-                     "zjump", "gjump", "copy", "read", "write", "stop"]
+                     "zjump", "gjump", "copy", "load", "store", "stop"]
 NAT_SIZE  = 3
 NIBB_SIZE = 0.5
 WORD_SIZE = 4

@@ -149,11 +149,11 @@ copy 0xaabbcc r4
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
-        def test_read_assem(self):
+        def test_load_assem(self):
                 program = \
 """
-read r2 r3
-read r6 r1
+load r2 r3
+load r6 r1
 """
                 output  = get_code(program)
                 answer  = "92300000"
@@ -161,11 +161,11 @@ read r6 r1
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
-        def test_write_assem(self):
+        def test_store_assem(self):
                 program = \
 """
-write r2 r3
-write r6 r1
+store r2 r3
+store r6 r1
 """
                 output  = get_code(program)
                 answer  = "a2300000"
@@ -329,21 +329,6 @@ alias_2: zjump r1 r2
                 answer = (8, 3, 15)
                 self.assertEqual(output, answer)
 
-        def test_get_signed_emul(self):
-                create_emu_mod()
-                import __emulator__ as e ; importlib.reload(e)
-                subprocess.call(["rm", "__emulator__.py"])
-
-                for val in [(0xffffffff,             -1),
-                            (0x00000000,              0),
-                            (0x80000000,    -0x80000000),
-                            (0x7fffffff, 0x80000000 - 1),
-                            (0x00000004,              4),
-                            (0xfffffffc,             -4)]:
-                        output = e.get_signed(val[0])
-                        answer = val[1]
-                        self.assertEqual(output, answer)
-
         def test_add_emul(self):
                 create_emu_mod()
                 import __emulator__ as e ; importlib.reload(e)
@@ -428,14 +413,14 @@ alias_2: zjump r1 r2
                 answer[15] = 0xeadbee
                 self.assertEqual(output, answer)
 
-        def test_read_emul(self):
+        def test_load_emul(self):
                 create_emu_mod()
                 import __emulator__ as e ; importlib.reload(e)
                 subprocess.call(["rm", "__emulator__.py"])
 
                 e.memory  = bytearray.fromhex("aabbccddeeff")
                 e.regs    = list(range(1, 17))
-                e.read(bytes.fromhex("01300000"), e.regs, e.memory)
+                e.load(bytes.fromhex("01300000"), e.regs, e.memory)
                 output    = e.regs, e.memory
                 answer    = list(range(1, 17))
                 answer[3] = 0xccddeeff
@@ -444,7 +429,7 @@ alias_2: zjump r1 r2
 
                 e.memory  = bytearray.fromhex("aabbccddeeff")
                 e.regs    = list(range(1, 17))
-                e.read(bytes.fromhex("03900000"), e.regs, e.memory)
+                e.load(bytes.fromhex("03900000"), e.regs, e.memory)
                 output    = e.regs, e.memory
                 answer    = list(range(1, 17))
                 answer[9] = 0xeeff0000
@@ -453,14 +438,14 @@ alias_2: zjump r1 r2
 
                 e.memory  = bytearray.fromhex("aabbccddeeff")
                 e.regs    = list(range(1, 17))
-                e.read(bytes.fromhex("06900000"), e.regs, e.memory)
+                e.load(bytes.fromhex("06900000"), e.regs, e.memory)
                 output    = e.regs, e.memory
                 answer    = list(range(1, 17))
                 answer[9] = 0x00000000
                 answer    = answer, bytes.fromhex("aabbccddeeff0000000000")
                 self.assertEqual(output, answer)
 
-        def test_write_emul(self):
+        def test_store_emul(self):
                 create_emu_mod()
                 import __emulator__ as e ; importlib.reload(e)
                 subprocess.call(["rm", "__emulator__.py"])
@@ -468,7 +453,7 @@ alias_2: zjump r1 r2
                 e.memory   = bytearray.fromhex("aabbccddeeff")
                 e.regs     = list(range(1, 17))
                 e.regs[11] = 0xdeadbeef
-                e.write(bytes.fromhex("0b100000"), e.regs, e.memory)
+                e.store(bytes.fromhex("0b100000"), e.regs, e.memory)
                 output     = e.regs, e.memory
                 answer     = list(range(1, 17))
                 answer[11] = 0xdeadbeef
@@ -478,7 +463,7 @@ alias_2: zjump r1 r2
                 e.memory   = bytearray.fromhex("aabbccddeeff")
                 e.regs     = list(range(1, 17))
                 e.regs[11] = 0xdeadbeef
-                e.write(bytes.fromhex("0b300000"), e.regs, e.memory)
+                e.store(bytes.fromhex("0b300000"), e.regs, e.memory)
                 output     = e.regs, e.memory
                 answer     = list(range(1, 17))
                 answer[11] = 0xdeadbeef
@@ -488,7 +473,7 @@ alias_2: zjump r1 r2
                 e.memory   = bytearray.fromhex("aabbccddeeff")
                 e.regs     = list(range(1, 17))
                 e.regs[11] = 0xdeadbeef
-                e.write(bytes.fromhex("0b600000"), e.regs, e.memory)
+                e.store(bytes.fromhex("0b600000"), e.regs, e.memory)
                 output     = e.regs, e.memory
                 answer     = list(range(1, 17))
                 answer[11] = 0xdeadbeef
@@ -701,7 +686,7 @@ memory:
       and  r10 r2 r5
       or   r10 r2 r6
       copy data r7
-      read r7   r8
+      load r7   r8
       stop
 data: 0xdeadbeef
 """
@@ -757,8 +742,8 @@ memory:
       and   r10 r2 r5
       or    r10 r2 r6
       copy  data r7
-      read  r7   r8
-      write r8   r2
+      load  r7   r8
+      store r8   r2
       stop
 data: 0xdeadbeef
 """
@@ -899,16 +884,16 @@ registers:
         copy  0x0  r13
         copy    f  r14
 
-# Reads word beginning at db, doubles it and stores in r10.
+# Load word beginning at db, doubles it and stores in r10.
 
         copy  db   r10
-        read  r10  r10
+        load  r10  r10
         add   r10  r10  r10
 
-# Writes results in r10 to dbx2 using r11.
+# Stores results in r10 at dbx2 using r11.
 
         copy  dbx2 r11
-        write r10  r11
+        store r10  r11
 
 # ------------------------------------------------------------------------------
 # first calculation
@@ -926,10 +911,10 @@ c_1_b:  copy  0x1   r1
         copy  c_1_e r15
         zjump r13   r14
 
-# Writes the result from r6 to ans_1 using r7.
+# Stores the result from r6 at ans_1 using r7.
 
 c_1_e:  copy  ans_1 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # second calculation
@@ -947,10 +932,10 @@ c_2_b:  copy  0xabcd r1
         copy  c_2_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_1 using r7.
+# Stores the result from r6 at ans_1 using r7.
 
 c_2_e:  copy  ans_2 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # third calculation
@@ -968,10 +953,10 @@ c_3_b:  copy  0x1f  r1
         copy  c_3_e r15
         zjump r13   r14
 
-# Writes the result from r6 to ans_1 using r7.
+# Stores the result from r6 at ans_1 using r7.
 
 c_3_e:  copy  ans_3 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # fourth calculation
@@ -989,10 +974,10 @@ c_4_b:  copy  0x1ab r1
         copy  c_4_e r15
         zjump r13   r14
 
-# Writes the result from r6 to ans_1 using r7.
+# Stores the result from r6 at ans_1 using r7.
 
 c_4_e:  copy  ans_4 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # Stop
@@ -1055,9 +1040,9 @@ dbx2:   0x0
 # Sets r14 to the address of gt.
 
         copy  word r11
-        read  r11  r11
+        load  r11  r11
         copy  mask r12
-        read  r12  r12
+        load  r12  r12
         copy  0x0  r13
         copy  gt   r14
 
@@ -1070,17 +1055,17 @@ dbx2:   0x0
 # Invokes gt.
 
 c_1_b:  copy  args_1 r1
-        read  r1     r1
+        load  r1     r1
         copy  args_1 r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_1_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_1 using r7.
+# Stores the result from r6 at ans_1 using r7.
 
 c_1_e:  copy  ans_1 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_2
@@ -1091,17 +1076,17 @@ c_1_e:  copy  ans_1 r7
 # Invokes gt.
 
 c_2_b:  copy  args_2 r1
-        read  r1     r1
+        load  r1     r1
         copy  args_2 r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_2_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_2 using r7.
+# Stores the result from r6 at ans_2 using r7.
 
 c_2_e:  copy  ans_2 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_3
@@ -1112,17 +1097,17 @@ c_2_e:  copy  ans_2 r7
 # Invokes gt.
 
 c_3_b:  copy  args_3 r1
-        read  r1     r1
+        load  r1     r1
         copy  args_3 r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_3_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_3 using r7.
+# Stores the result from r6 at ans_3 using r7.
 
 c_3_e:  copy  ans_3 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_4
@@ -1133,17 +1118,17 @@ c_3_e:  copy  ans_3 r7
 # Invokes gt.
 
 c_4_b:  copy  args_4 r1
-        read  r1     r1
+        load  r1     r1
         copy  args_4 r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_4_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_4 using r7.
+# Stores the result from r6 at ans_4 using r7.
 
 c_4_e:  copy  ans_4 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_5
@@ -1154,17 +1139,17 @@ c_4_e:  copy  ans_4 r7
 # Invokes gt.
 
 c_5_b:  copy  args_5 r1
-        read  r1     r1
+        load  r1     r1
         copy  args_5 r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_5_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_5 using r7.
+# Stores the result from r6 at ans_5 using r7.
 
 c_5_e:  copy  ans_5 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_6
@@ -1175,17 +1160,17 @@ c_5_e:  copy  ans_5 r7
 # Invokes gt.
 
 c_6_b:  copy  args_6 r1
-        read  r1     r1
+        load  r1     r1
         copy  args_6 r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_6_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_6 using r7.
+# Stores the result from r6 at ans_6 using r7.
 
 c_6_e:  copy  ans_6 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_7
@@ -1196,17 +1181,17 @@ c_6_e:  copy  ans_6 r7
 # Invokes gt.
 
 c_7_b:  copy  args_7 r1
-        read  r1     r1
+        load  r1     r1
         copy  args_7 r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_7_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_7 using r7.
+# Stores the result from r6 at ans_7 using r7.
 
 c_7_e:  copy  ans_7 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_8
@@ -1217,17 +1202,17 @@ c_7_e:  copy  ans_7 r7
 # Invokes gt.
 
 c_8_b:  copy  args_8 r1
-        read  r1     r1
+        load  r1     r1
         copy  args_8 r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_8_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_8 using r7.
+# Stores the result from r6 at ans_8 using r7.
 
 c_8_e:  copy  ans_8 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_9
@@ -1238,17 +1223,17 @@ c_8_e:  copy  ans_8 r7
 # Invokes gt.
 
 c_9_b:  copy  args_9 r1
-        read  r1     r1
+        load  r1     r1
         copy  args_9 r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_9_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_9 using r7.
+# Stores the result from r6 at ans_9 using r7.
 
 c_9_e:  copy  ans_9 r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_a
@@ -1259,17 +1244,17 @@ c_9_e:  copy  ans_9 r7
 # Invokes gt.
 
 c_a_b:  copy  args_a r1
-        read  r1     r1
+        load  r1     r1
         copy  args_a r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_a_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_a using r7.
+# Stores the result from r6 at ans_a using r7.
 
 c_a_e:  copy  ans_a r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_b
@@ -1280,17 +1265,17 @@ c_a_e:  copy  ans_a r7
 # Invokes gt.
 
 c_b_b:  copy  args_b r1
-        read  r1     r1
+        load  r1     r1
         copy  args_b r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_b_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_b using r7.
+# Stores the result from r6 at ans_b using r7.
 
 c_b_e:  copy  ans_b r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_c
@@ -1301,17 +1286,17 @@ c_b_e:  copy  ans_b r7
 # Invokes gt.
 
 c_c_b:  copy  args_c r1
-        read  r1     r1
+        load  r1     r1
         copy  args_c r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_c_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_c using r7.
+# Stores the result from r6 at ans_c using r7.
 
 c_c_e:  copy  ans_c r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_d
@@ -1322,17 +1307,17 @@ c_c_e:  copy  ans_c r7
 # Invokes gt.
 
 c_d_b:  copy  args_d r1
-        read  r1     r1
+        load  r1     r1
         copy  args_d r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_d_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_d using r7.
+# Stores the result from r6 at ans_d using r7.
 
 c_d_e:  copy  ans_d r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # c_e
@@ -1343,17 +1328,17 @@ c_d_e:  copy  ans_d r7
 # Invokes gt.
 
 c_e_b:  copy  args_e r1
-        read  r1     r1
+        load  r1     r1
         copy  args_e r2
         add   r11    r2  r2
-        read  r2     r2
+        load  r2     r2
         copy  c_e_e  r15
         zjump r13    r14
 
-# Writes the result from r6 to ans_e using r7.
+# Stores the result from r6 at ans_e using r7.
 
 c_e_e:  copy  ans_e r7
-        write r6    r7
+        store r6    r7
 
 # ------------------------------------------------------------------------------
 # Stop

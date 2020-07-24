@@ -19,7 +19,7 @@ import textwrap
 import sys
 
 FUNCS     = ["add", "sub", "mult", "div", "and_", "or_",
-                     "zjump", "gjump", "copy", "read", "write", "stop"]
+                     "zjump", "gjump", "copy", "load", "store", "stop"]
 N_REGS    = 16
 IP        = 0
 BYTE_SIZE = 8
@@ -28,13 +28,6 @@ MOD_SIZE  = 2 ** (WORD_SIZE * BYTE_SIZE)
 
 def get_reg_args(word):
         return word[0] & 0xf, word[1] >> (BYTE_SIZE // 2), word[1] & 0xf
-
-def get_signed(natural):
-        signed = natural
-        if signed >> WORD_SIZE * BYTE_SIZE - 1:
-                signed = -((~signed + 1) & (MOD_SIZE - 1))
-
-        return signed
 
 def get_word(beg, memory):
         if len(memory) < beg + WORD_SIZE:
@@ -75,11 +68,11 @@ def copy(word, regs, memory):
         a       = word[3] & 0xf
         regs[a] = (int.from_bytes(word, "big") & 0x0ffffff0) >> (BYTE_SIZE // 2)
 
-def read(word, regs, memory):
+def load(word, regs, memory):
         a, b    = get_reg_args(word)[:2]
         regs[b] = int.from_bytes(get_word(regs[a], memory), "big")
 
-def write(word, regs, memory):
+def store(word, regs, memory):
         a, b = get_reg_args(word)[:2]
         set_word(regs[a].to_bytes(WORD_SIZE, "big"), regs[b], memory)
 
@@ -90,7 +83,7 @@ def zjump(word, regs, memory):
 
 def gjump(word, regs, memory):
         a, b, c = get_reg_args(word)
-        if get_signed(regs[a]) > get_signed(regs[b]):
+        if regs[a] > regs[b]:
                 regs[IP] = regs[c] - WORD_SIZE
 
 def stop( word, regs, memory):
