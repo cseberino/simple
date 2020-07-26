@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import macros
 import string
 import sys
 
 FUNCS     = ["add", "sub", "mult", "div", "and", "or",
-                     "zjump", "gjump", "copy", "load", "store", "stop"]
+                              "zjump", "gjump", "copy", "load", "store", "stop"]
 NAT_SIZE  = 3
 NIBB_SIZE = 0.5
 WORD_SIZE = 4
@@ -38,7 +39,8 @@ def get_natural(orig, size):
         return natural
 
 code    = ""
-words   = [e.strip() for e in open(sys.argv[1]).readlines()]
+asm     = macros.replace(open(sys.argv[1]).read())
+words   = [e.strip() for e in asm.split("\n")]
 words   = [e for e in words if e and not e.startswith("#")]
 aliases = [(e.split()[0], 4 * i) for i, e in enumerate(words)]
 aliases = dict([(e[0][:-1], e[1]) for e in aliases if e[0].endswith(":")])

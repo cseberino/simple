@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import sys
+sys.path.append("..")
+
+import macros
 import unittest
 import subprocess
 import importlib
@@ -27,6 +31,14 @@ def get_code(program):
         subprocess.call(["rm", "__program__", "__program__.mem"])
 
         return code
+
+def get_output(program):
+        open("__program__", "w").write(program)
+        subprocess.call(["../assembler", "__program__"])
+        output = subprocess.check_output(["../emulator", "__program__.mem"])
+        subprocess.call(["rm", "__program__", "__program__.mem"])
+
+        return output
 
 def create_emu_mod():
         subprocess.call(["cp", "../emulator", "__emulator__.py"])
@@ -544,10 +556,7 @@ copy 0xaabbcc r10
 add  r1 r2 r3
 stop
 """
-                open("__program__", "w").write(program)
-                subprocess.call(["../assembler", "__program__"])
-                output = subprocess.check_output(["../emulator",
-                                                  "__program__.mem"])
+                output = get_output(program)
                 answer = \
 b"""
 registers:
@@ -589,10 +598,7 @@ add  r1  r2 r3
 sub  r10 r1 r4
 stop
 """
-                open("__program__", "w").write(program)
-                subprocess.call(["../assembler", "__program__"])
-                output = subprocess.check_output(["../emulator",
-                                                  "__program__.mem"])
+                output = get_output(program)
                 answer = \
 b"""
 registers:
@@ -637,10 +643,7 @@ and  r10 r2 r5
 or   r10 r2 r6
 stop
 """
-                open("__program__", "w").write(program)
-                subprocess.call(["../assembler", "__program__"])
-                output = subprocess.check_output(["../emulator",
-                                                  "__program__.mem"])
+                output = get_output(program)
                 answer = \
 b"""
 registers:
@@ -690,10 +693,7 @@ memory:
       stop
 data: 0xdeadbeef
 """
-                open("__program__", "w").write(program)
-                subprocess.call(["../assembler", "__program__"])
-                output = subprocess.check_output(["../emulator",
-                                                  "__program__.mem"])
+                output = get_output(program)
                 answer = \
 b"""
 registers:
@@ -747,10 +747,7 @@ memory:
       stop
 data: 0xdeadbeef
 """
-                open("__program__", "w").write(program)
-                subprocess.call(["../assembler", "__program__"])
-                output = subprocess.check_output(["../emulator",
-                                                  "__program__.mem"])
+                output = get_output(program)
                 answer = \
 b"""
 registers:
@@ -801,10 +798,7 @@ aa:   copy  0x87c r5
 bb:   copy  0xb31 r6
       stop
 """
-                open("__program__", "w").write(program)
-                subprocess.call(["../assembler", "__program__"])
-                output = subprocess.check_output(["../emulator",
-                                                  "__program__.mem"])
+                output = get_output(program)
                 output = output.decode()
                 output = output[:output.find("memory")].strip()
                 answer = \
@@ -842,10 +836,7 @@ aa:   copy  0x87c r5
 bb:   copy  0xb31 r6
       stop
 """
-                open("__program__", "w").write(program)
-                subprocess.call(["../assembler", "__program__"])
-                output = subprocess.check_output(["../emulator",
-                                                  "__program__.mem"])
+                output = get_output(program)
                 output = output.decode()
                 output = output[:output.find("memory")].strip()
                 answer = \
@@ -890,10 +881,7 @@ registers:
       stop
 data: 0xdeadbeef
 """
-                open("__program__", "w").write(program)
-                subprocess.call(["../assembler", "__program__"])
-                output = subprocess.check_output(["../emulator",
-                                                  "__program__.mem"])
+                output = get_output(program)
                 answer = \
 b"""
 registers:
@@ -1075,10 +1063,7 @@ ans_4:  0x0
 db:     0xdeadbeef
 dbx2:   0x0
 """
-                open("__program__", "w").write(program)
-                subprocess.call(["../assembler", "__program__"])
-                output = subprocess.check_output(["../emulator",
-                                                  "__program__.mem"])
+                output = get_output(program)
                 output = "\n".join(output.decode().split("\n")[-7:]).lstrip()
                 answer = \
 """
@@ -1484,10 +1469,7 @@ ans_d:  0x0
 ans_e:  0x0
 
 """
-                open("__program__", "w").write(program)
-                subprocess.call(["../assembler", "__program__"])
-                output = subprocess.check_output(["../emulator",
-                                                  "__program__.mem"])
+                output = get_output(program)
                 output = "\n".join(output.decode().split("\n")[-15:]).lstrip()
                 answer = \
 """
@@ -1506,6 +1488,563 @@ ans_e:  0x0
 	0x000002e4: 0x00000001
 	0x000002e8: 0x00000000
 """.lstrip()
+                self.assertEqual(output, answer)
+
+        def test_parse_arg(self):
+                for e in [("32",        32),
+                          ("32z",       None),
+                          ("0xabc",     0xabc),
+                          ("0xabcz",    None),
+                          ("r0",        "r0"),
+                          ("r3",        "r3"),
+                          ("r8",        "r8"),
+                          ("r10",       "r10"),
+                          ("r12",       "r12"),
+                          ("r15",       "r15"),
+                          ("r16",       ["r16"]),
+                          ("r1y",       ["r1y"]),
+                          ("r3+24",     ("r3", 24)),
+                          ("r3-24",     ("r3", -24)),
+                          ("r15+0xabc", ("r15",  0xabc)),
+                          ("r15-0xabc", ("r15", -0xabc)),
+                          ("label34",   ["label34"])]:
+                        output  = macros.parse_arg(e[0])
+                        answer  = e[1]
+                        self.assertEqual(output, answer)
+
+        def test_parse_args(self):
+                output = macros.parse_args(" r1 r2 r3 ".split())
+                answer = ["r1", "r2", "r3"]
+                self.assertEqual(output, answer)
+
+                output = macros.parse_args(" 42 0x123 r13 ".split())
+                answer = [42, 0x123, "r13"]
+                self.assertEqual(output, answer)
+
+                output = macros.parse_args(" r7 + 6 r11 ".split())
+                answer = [("r7", 6), "r11"]
+                self.assertEqual(output, answer)
+
+                output = macros.parse_args(" r7 + 6 r11 - 0xa r0 + 44 ".split())
+                answer = [("r7", 6), ("r11", -10), ("r0", 44)]
+                self.assertEqual(output, answer)
+
+                output = macros.parse_args("r7 + 6 r11 charlie".split())
+                answer = [("r7", 6), "r11", ["charlie"]]
+                self.assertEqual(output, answer)
+
+        def test_replace(self):
+                asm = """
+
+                     add  r1    r2    r3
+
+
+label1:            add  r1 r2   r3
+
+                      load r5 r8
+                NOTH
+label2:                NOTH
+"""[1:]
+                output  = macros.replace(asm)
+                answer  = """
+                  add     r1                r2                r3
+label1:           add     r1                r2                r3
+                  load    r5                r8
+                  and     r1                r1                r1
+                  and     r1                r1                r1
+label2:           and     r1                r1                r1
+                  and     r1                r1                r1
+"""[1:]
+                self.assertEqual(output, answer)
+
+        def test_NOTH(self):
+                asm = """
+                NOTH
+label:                NOTH
+"""[1:]
+                output  = macros.replace(asm)
+                answer  = """
+                  and     r1                r1                r1
+                  and     r1                r1                r1
+label:            and     r1                r1                r1
+                  and     r1                r1                r1
+"""[1:]
+                self.assertEqual(output, answer)
+
+        def test_COPY(self):
+                asm = """
+                COPY r1 r3
+label:                COPY r14 r6
+"""[1:]
+                output  = macros.replace(asm)
+                answer  = """
+                  and     r1                r1                r1
+                  and     r1                r1                r3
+label:            and     r1                r1                r1
+                  and     r14               r14               r6
+"""[1:]
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy 0xabc r1
+                COPY r1    r2
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[31:]
+                answer = \
+"""
+	 r1: 0x00000abc
+	 r2: 0x00000abc
+	 r3: 0x00000000
+	 r4: 0x00000000
+	 r5: 0x00000000
+	 r6: 0x00000000
+	 r7: 0x00000000
+	 r8: 0x00000000
+	 r9: 0x00000000
+	r10: 0x00000000
+	r11: 0x00000000
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY 0xdef        r12
+                COPY 0xdeadbeef   r13
+                COPY r12 + 0x7000 r14
+                COPY r12 - 0x300  r15
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000def
+	r13: 0xdeadbeef
+	r14: 0x00007def
+	r15: 0x00000aef
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY 0xdeadbeef       r13
+                COPY r13 + 0x10000000 r14
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0xdeadbeef
+	r14: 0xeeadbeef
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                and  r1 r1 r1
+                and  r1 r1 r1
+                and  r1 r1 r1
+label:          and  r1 r1 r1
+                COPY label        r12
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x0000000c
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+        def test_MULT(self):
+                program = \
+"""
+                COPY 0x74 r12
+                COPY 0x15 r13
+                MULT r12  r13 r14
+                MULT 0xf  16  r15
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000074
+	r13: 0x00000015
+	r14: 0x00000984
+	r15: 0x000000f0
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY 0x74 r12
+                COPY 0x15 r13
+                MULT r12 + 10 r13 - 0x3 r14
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000074
+	r13: 0x00000015
+	r14: 0x000008dc
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+        def test_LOAD(self):
+                program = \
+"""
+                and  r1 r1 r1
+                and  r1 r1 r1
+                and  r1 r1 r1
+label:          and  r1 r1 r1
+                and  r6 r6 r6
+                LOAD 0x4     r12
+                copy label   r13
+                LOAD r13     r14
+                LOAD label   r15
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x41110000
+	r13: 0x0000000c
+	r14: 0x41110000
+	r15: 0x41110000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                and  r1 r1 r1
+                and  r2 r2 r2
+label:          and  r3 r3 r3
+
+                COPY 0x4     r12
+                LOAD r12 + 4 r13
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000004
+	r13: 0x43330000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+        def test_STORE(self):
+                program = \
+"""
+                and  r1 r1 r1
+                and  r1 r1 r1
+label1:         and  r1 r1 r1
+label2:         and  r1 r1 r1
+
+                COPY  0xdeadbeef r13
+                COPY  label1     r14
+                COPY  label2     r15
+
+                STORE r13        r14
+                STORE 0xabcdef   r15
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                beg    = output.find("memory")
+                end    = output.find("	0x00000010: ")
+                output = output[beg:end]
+                answer = \
+"""
+memory:
+
+	0x00000000: 0x41110000
+	0x00000004: 0x41110000
+	0x00000008: 0xdeadbeef
+	0x0000000c: 0x00abcdef
+""".lstrip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                and  r1 r1 r1
+                and  r1 r1 r1
+label1:         and  r1 r1 r1
+label2:         and  r1 r1 r1
+
+                COPY  0xdeadbeef r13
+
+                STORE r13      label1
+                STORE 0xabcdef label2
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                beg    = output.find("memory")
+                end    = output.find("	0x00000010: ")
+                output = output[beg:end]
+                answer = \
+"""
+memory:
+
+	0x00000000: 0x41110000
+	0x00000004: 0x41110000
+	0x00000008: 0xdeadbeef
+	0x0000000c: 0x00abcdef
+""".lstrip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                and  r1 r1 r1
+                and  r1 r1 r1
+                and  r1 r1 r1
+                and  r1 r1 r1
+
+                COPY 0xabc r13
+                COPY 0x8   r14
+
+                STORE r13 + 0x1000 r14
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                beg    = output.find("memory")
+                end    = output.find("	0x00000010: ")
+                output = output[beg:end]
+                answer = \
+"""
+memory:
+
+	0x00000000: 0x41110000
+	0x00000004: 0x41110000
+	0x00000008: 0x00001abc
+	0x0000000c: 0x41110000
+""".lstrip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                and  r1 r1 r1
+                and  r1 r1 r1
+                and  r1 r1 r1
+                and  r1 r1 r1
+
+                COPY 0xdeadbeef r13
+                COPY 0x8        r14
+
+                STORE r13 + 0x1000 r14
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                beg    = output.find("memory")
+                end    = output.find("	0x00000010: ")
+                output = output[beg:end]
+                answer = \
+"""
+memory:
+
+	0x00000000: 0x41110000
+	0x00000004: 0x41110000
+	0x00000008: 0xdeadceef
+	0x0000000c: 0x41110000
+""".lstrip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                and  r1 r1 r1
+                and  r1 r1 r1
+label:          and  r1 r1 r1
+                and  r1 r1 r1
+
+                COPY 0xdeadbeef r13
+
+                STORE r13 + 0x1000 label
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                beg    = output.find("memory")
+                end    = output.find("	0x00000010: ")
+                output = output[beg:end]
+                answer = \
+"""
+memory:
+
+	0x00000000: 0x41110000
+	0x00000004: 0x41110000
+	0x00000008: 0xdeadceef
+	0x0000000c: 0x41110000
+""".lstrip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                and  r1 r1 r1
+                and  r1 r1 r1
+label:          and  r1 r1 r1
+                and  r1 r1 r1
+
+                COPY 0xdeadbeef r13
+                copy 0x8        r14
+
+                STORE r13 + 0x10000000 r14
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                beg    = output.find("memory")
+                end    = output.find("	0x00000010: ")
+                output = output[beg:end]
+                answer = \
+"""
+memory:
+
+	0x00000000: 0x41110000
+	0x00000004: 0x41110000
+	0x00000008: 0xeeadbeef
+	0x0000000c: 0x41110000
+""".lstrip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                and  r1 r1 r1
+                and  r1 r1 r1
+label:          and  r1 r1 r1
+                and  r1 r1 r1
+
+                COPY 0xdeadbeef r13
+
+                STORE r13 + 0x10000000 label
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                beg    = output.find("memory")
+                end    = output.find("	0x00000010: ")
+                output = output[beg:end]
+                answer = \
+"""
+memory:
+
+	0x00000000: 0x41110000
+	0x00000004: 0x41110000
+	0x00000008: 0xeeadbeef
+	0x0000000c: 0x41110000
+""".lstrip()
+                self.assertEqual(output, answer)
+
+        def test_JUMP(self):
+                program = \
+"""
+                copy 0x12 r12
+                copy 0x13 r13
+                copy 0x14 r14
+                copy 0x15 r15
+                JUMP label
+                copy 0x22 r12
+                copy 0x23 r13
+                copy 0x24 r14
+                copy 0x25 r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000012
+	r13: 0x00000013
+	r14: 0x00000014
+	r15: 0x00000015
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy label   r11
+                copy 0x13    r13
+                copy 0x14    r14
+                copy 0x15    r15
+                JUMP r11 - 8
+                copy 0x22    r12
+                copy 0x23    r13
+                copy 0x24    r14
+                copy 0x25    r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000013
+	r14: 0x00000024
+	r15: 0x00000025
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy  0x1c r12
+                copy  0x0  r13
+                zjump r13  r12
+                copy  0x12 r12
+                copy  0x13 r13
+                copy  0x14 r14
+                stop
+label:          JUMP  0xc
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000012
+	r13: 0x00000013
+	r14: 0x00000014
+	r15: 0x00000000
+""".strip()
                 self.assertEqual(output, answer)
 
 unittest.main()
