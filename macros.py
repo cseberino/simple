@@ -16,16 +16,15 @@
 import re
 import types
 
-REG      = "r1[0-5]|r[0-9]"
-NAT      = "0x[0-9a-f]+|\d+"
-BOTH     = "({})[+-]({})".format(REG, NAT)
-LABEL    = "[a-zA-Z_]\w*"
-WS       = ["r7", "r8", "r9", "r10"]
-NAT_MASK = 0x00ffffff
-NAT_LEN  = 24
-FUNC_LEN =  8
-SECT_LEN = 18
-HEXDEC   = 16
+REG       = "r1[0-5]|r[0-9]"
+NAT       = "0x[0-9a-f]+|\d+"
+R_AND_N   = "({})[+-]({})".format(REG, NAT)
+LABEL     = "[a-zA-Z_]\w*"
+WS        = ["r7", "r8", "r9", "r10"]
+SECT_LEN  = 18
+FUNC_LEN  =  8
+HALFW_LEN = 16
+HEXDEC    = 16
 
 def parse_arg(arg):
         result = None
@@ -36,7 +35,7 @@ def parse_arg(arg):
                         result = int(arg, HEXDEC)
                 else:
                         result = int(arg)
-        elif re.fullmatch(BOTH, arg):
+        elif re.fullmatch(R_AND_N, arg):
                 reg = re.match(REG, arg).group(0)
                 nat = arg[len(reg) + 1:]
                 if nat.startswith("0x"):
@@ -104,16 +103,13 @@ def COPY(arg_1, arg_2):
         if   isinstance(arg_1, str):
                 result = line("and", arg_1, arg_1, arg_2)
         elif isinstance(arg_1, int):
-                lsb    = arg_1  & NAT_MASK
-                msb    = arg_1 >> NAT_LEN
-                result = line("copy", lsb, arg_2)
-                if msb:
-                        half    = int(NAT_LEN / 2)
-                        result += line("copy", msb,       WS[0])
-                        result += line("copy", 2 ** half, WS[1])
-                        result += line("mult", WS[1],     WS[0], WS[0])
-                        result += line("mult", WS[1],     WS[0], WS[0])
-                        result += line("add",  arg_2,     WS[0], arg_2)
+                lsb     = arg_1  & (2 ** HALFW_LEN - 1)
+                msb     = arg_1 >> HALFW_LEN
+                result  = line("copy", lsb,            arg_2)
+                result += line("copy", msb,            WS[0])
+                result += line("copy", 2 ** HALFW_LEN, WS[1])
+                result += line("mult", WS[0],          WS[1], WS[0])
+                result += line("add",  arg_2,          WS[0], arg_2)
         elif isinstance(arg_1, tuple):
                 result  = line("COPY", abs(arg_1[1]), arg_2)
                 if arg_1[1] >= 0:
