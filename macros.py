@@ -96,8 +96,25 @@ def replace(asm):
 
         return result
 
-def NOTH():
-        return line("and", "r1", "r1", "r1")
+def arith_log_macro(func):
+        def func_(arg_1, arg_2, arg_3):
+                result  = COPY(arg_1, arg_3)
+                result += COPY(arg_2, WS[2])
+                result += line(func, arg_3, WS[2], arg_3)
+
+                return result
+
+        return func_
+
+for e in ["ADD", "SUB", "MULT", "DIV", "AND", "OR"]:
+        globals()[e] = arith_log_macro(e.lower())
+
+def ZJUMP(arg_1, arg_2):
+        result  = COPY(arg_1, WS[2])
+        result += COPY(arg_2, WS[3])
+        result += line("zjump", WS[2], WS[3])
+
+        return result
 
 def COPY(arg_1, arg_2):
         if   isinstance(arg_1, str):
@@ -111,7 +128,7 @@ def COPY(arg_1, arg_2):
                 result += line("mult", WS[0],          WS[1], WS[0])
                 result += line("add",  arg_2,          WS[0], arg_2)
         elif isinstance(arg_1, tuple):
-                result  = line("COPY", abs(arg_1[1]), arg_2)
+                result  = COPY(abs(arg_1[1]), arg_2)
                 if arg_1[1] >= 0:
                         result += line("add", arg_1[0], arg_2, arg_2)
                 else:
@@ -129,19 +146,6 @@ def COPY(arg_1, arg_2):
 
         return result
 
-def arith_log_macro(func):
-        def func_(arg_1, arg_2, arg_3):
-                result  = COPY(arg_1, arg_3)
-                result += COPY(arg_2, WS[3])
-                result += line(func, arg_3, WS[3], arg_3)
-
-                return result
-
-        return func_
-
-for e in ["ADD", "SUB", "MULT", "DIV", "AND", "OR"]:
-        globals()[e] = arith_log_macro(e.lower())
-
 def LOAD(arg_1, arg_2):
         result  = COPY(arg_1, arg_2)
         result += line("load", arg_2, arg_2)
@@ -154,6 +158,9 @@ def STORE(arg_1, arg_2):
         result += line("store", WS[2], WS[3])
 
         return result
+
+def NOTH():
+        return line("and", "r1", "r1", "r1")
 
 def JUMP(arg_1):
         result  = COPY(arg_1,   WS[2])
