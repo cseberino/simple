@@ -1713,6 +1713,69 @@ label:          and  r1 r1 r1
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_DIV(self):
+                program = \
+"""
+                DIV 0x6        0x2        r12
+                DIV 0xdeadbeef 0xdeadbeef r13
+                DIV 0xdeadbeef 0xdeadbeff r14
+                DIV 0x1        0x80000000 r15
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000003
+	r13: 0x00000001
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY 0x7fffffff r12
+                COPY 0x80000002 r13
+                COPY 0x80000000 r14
+                DIV  r12        r14 r12
+                DIV  r13        r14 r13
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000001
+	r14: 0x80000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+        def test_SUB(self):
+                program = \
+"""
+                SUB 0x6 0x2               r12
+                SUB 0xdeadbeef 0xdeadbeef r13
+                SUB 0xdeadbeef 0xdeadbef1 r14
+                SUB 0xdeadbeff 0xdeadbeef r15
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000004
+	r13: 0x00000000
+	r14: 0xfffffffe
+	r15: 0x00000010
+""".strip()
+                self.assertEqual(output, answer)
+
         def test_LOAD(self):
                 program = \
 """
@@ -2178,6 +2241,180 @@ label:          stop
                 copy  0x14       r14
                 copy  0x15       r15
                 ZJUMP r13 - 0xab r11 - 8
+                copy  0x22       r12
+                copy  0x23       r13
+                copy  0x24       r14
+                copy  0x25       r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000022
+	r13: 0x00000023
+	r14: 0x00000024
+	r15: 0x00000025
+""".strip()
+                self.assertEqual(output, answer)
+
+        def test_GJUMP(self):
+                program = \
+"""
+                copy  0x12    r12
+                copy  0x13    r13
+                copy  0x14    r14
+                copy  0x15    r15
+                GJUMP r13 r12 label
+                copy  0x22    r12
+                copy  0x23    r13
+                copy  0x24    r14
+                copy  0x25    r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000012
+	r13: 0x00000013
+	r14: 0x00000014
+	r15: 0x00000015
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy  0x12 r12
+                copy  0x13 r13
+                copy  0x14 r14
+                copy  0x15 r15
+                GJUMP 0x88 0x77 label
+                copy  0x22 r12
+                copy  0x23 r13
+                copy  0x24 r14
+                copy  0x25 r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000012
+	r13: 0x00000013
+	r14: 0x00000014
+	r15: 0x00000015
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy  label r11
+                copy  0x13  r13
+                copy  0x14  r14
+                copy  0x15  r15
+                GJUMP 0x15  0x14 r11 - 8
+                copy  0x22  r12
+                copy  0x23  r13
+                copy  0x24  r14
+                copy  0x25  r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000013
+	r14: 0x00000024
+	r15: 0x00000025
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy  0x1c r12
+                copy  0x0  r13
+                zjump r13  r12
+                copy  0x12 r12
+                copy  0x13 r13
+                copy  0x14 r14
+                stop
+label:          GJUMP 0x22 0x11 0xc
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000012
+	r13: 0x00000013
+	r14: 0x00000014
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy  0x0  r12
+                copy  0x13 r13
+                copy  0x14 r14
+                copy  0x15 r15
+                GJUMP r13  0x12 label
+                copy  0x22 r12
+                copy  0x23 r13
+                copy  0x24 r14
+                copy  0x25 r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000013
+	r14: 0x00000014
+	r15: 0x00000015
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy  label      r11
+                copy  0x13       r13
+                copy  0x14       r14
+                copy  0x15       r15
+                GJUMP r15 - 0x10 r13 - 0x10 r11 - 8
+                copy  0x22       r12
+                copy  0x23       r13
+                copy  0x24       r14
+                copy  0x25       r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000013
+	r14: 0x00000024
+	r15: 0x00000025
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy  label      r11
+                copy  0x13       r13
+                copy  0x14       r14
+                copy  0x15       r15
+                GJUMP r13 - 0x10 r15 - 0x10 r11 - 8
                 copy  0x22       r12
                 copy  0x23       r13
                 copy  0x24       r14
