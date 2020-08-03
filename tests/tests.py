@@ -214,22 +214,22 @@ copy 16724940 r2
                 answer  = bytes.fromhex(answer)
                 self.assertEqual(output, answer)
 
-        def test_aliases_assem(self):
+        def test_labels_assem(self):
                 program = \
 """
-# This comment nor blank lines should affect aliases.
+# This comment and blank lines should not affect labels.
 
          add r2 r3 r4
          add r6 r1 r2
 
-alias_1: sub r2 r3 r4
+label_1: sub r2 r3 r4
          add r2 r3 r4
 
 
          add r6 r1 r2
-         copy alias_1 r6
-alias_2: zjump r1 r2
-         alias_2
+         copy label_1 r6
+label_2: zjump r1 r2
+         label_2
          stop
 """
                 output  = get_code(program)
@@ -251,12 +251,12 @@ alias_2: zjump r1 r2
          # This is a comment.
          add r2 r3 r4
          add r6 r1 r2
-alias_1: sub r2 r3 r4
+label_1: sub r2 r3 r4
          add r2 r3 r4
          add r6 r1 r2
-         copy alias_1 r6
-alias_2: zjump r1 r2
-         alias_2
+         copy label_1 r6
+label_2: zjump r1 r2
+         label_2
          stop
          # This is another comment.
          14
@@ -1492,9 +1492,9 @@ ans_e:  0x0
 
         def test_parse_arg(self):
                 for e in [("32",        32),
-                          ("32z",       None),
+                          ("32z",       ["32z"]),
                           ("0xabc",     0xabc),
-                          ("0xabcz",    None),
+                          ("0xabcz",    ["0xabcz"]),
                           ("r0",        "r0"),
                           ("r3",        "r3"),
                           ("r8",        "r8"),

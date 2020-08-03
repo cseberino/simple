@@ -19,7 +19,7 @@ import types
 REG       = "r1[0-5]|r[0-9]"
 NAT       = "0x[0-9a-f]+|\d+"
 R_AND_N   = "({})[+-]({})".format(REG, NAT)
-LABEL     = "[a-zA-Z_]\w*"
+LABEL     = "\w+"
 WS        = ["r7", "r8", "r9", "r10"]
 SECT_LEN  = 18
 FUNC_LEN  =  8

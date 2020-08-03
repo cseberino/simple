@@ -32,18 +32,18 @@ def get_natural(orig, size):
         if   orig.startswith("0x"):
                 natural = orig[2:].zfill(2 * size)
         elif orig[0] in string.ascii_letters:
-                natural = get_hex(aliases[orig], size)
+                natural = get_hex(labels[orig], size)
         else:
                 natural = get_hex(orig, size)
 
         return natural
 
-code    = ""
-asm     = macros.replace(open(sys.argv[1]).read())
-words   = [e.strip() for e in asm.split("\n")]
-words   = [e for e in words if e and not e.startswith("#")]
-aliases = [(e.split()[0], 4 * i) for i, e in enumerate(words)]
-aliases = dict([(e[0][:-1], e[1]) for e in aliases if e[0].endswith(":")])
+code   = ""
+asm    = macros.replace(open(sys.argv[1]).read())
+words  = [e.strip() for e in asm.split("\n")]
+words  = [e         for e in words if e and not e.startswith("#")]
+labels = [(e.split()[0], 4 * i) for i, e in enumerate(words)]
+labels = dict([(e[0][:-1], e[1]) for e in labels if e[0].endswith(":")])
 for e in words:
         e = e.split()[1:] if e.split()[0].endswith(":") else e.split()
         if e[0] in FUNCS:
