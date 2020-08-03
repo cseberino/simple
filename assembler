@@ -19,24 +19,20 @@ import macros
 import string
 import sys
 
-FUNCS     = ["add", "sub", "mult", "div", "and", "or",
+FUNCS      = ["add", "sub", "mult", "div", "and", "or",
                               "zjump", "gjump", "copy", "load", "store", "stop"]
-NAT_SIZE  = 3
-NIBB_SIZE = 0.5
-WORD_SIZE = 4
+CONST_SIZE =   3
+NIBB_SIZE  = 0.5
+WORD_SIZE  =   4
+HEXADEC    =  16
 
-def get_hex(orig, size):
-        return hex(int(orig))[2:].zfill(int(2 * size))
+def get_hex(e, size):
+        if   isinstance(e, str) and e.startswith("0x"):
+                e = int(e, HEXADEC)
+        elif e in labels:
+                e = labels[e]
 
-def get_natural(orig, size):
-        if   orig.startswith("0x"):
-                natural = orig[2:].zfill(2 * size)
-        elif orig[0] in string.ascii_letters:
-                natural = get_hex(labels[orig], size)
-        else:
-                natural = get_hex(orig, size)
-
-        return natural
+        return hex(int(e))[2:].zfill(int(2 * size))
 
 code   = ""
 asm    = macros.replace(open(sys.argv[1]).read())
@@ -49,12 +45,12 @@ for e in words:
         if e[0] in FUNCS:
                 code_  = get_hex(FUNCS.index(e[0]), NIBB_SIZE)
                 if e[0] == "copy":
-                        code_ += get_natural(e[1], NAT_SIZE)
+                        code_ += get_hex(e[1], CONST_SIZE)
                         code_ += get_hex(e[2][1:], NIBB_SIZE)
                 else:
                         for reg in e[1:]:
                                 code_ += get_hex(reg[1:], NIBB_SIZE)
                 code  += code_.ljust(2 * WORD_SIZE, "0")
         else:
-                code  += get_natural(e[0], WORD_SIZE)
+                code  += get_hex(e[0], WORD_SIZE)
 open(sys.argv[1] + ".mem", "wb").write(bytes.fromhex(code))

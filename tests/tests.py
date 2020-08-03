@@ -2433,4 +2433,84 @@ label:          stop
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_label_sys(self):
+                importlib.reload(macros)
+
+                output = "_unique_1"
+                answer = macros.new_label()
+                self.assertEqual(output, answer)
+
+                macros.labels.append("_unique_2")
+                output = "_unique_3"
+                answer = macros.new_label()
+                self.assertEqual(output, answer)
+
+                for i in range(4, 101):
+                        macros.new_label()
+                output = macros.labels
+                answer = ["_unique_{}".format(i) for i in range(1, 101)]
+                self.assertEqual(output, answer)
+
+        def test_PUSH(self):
+                program = \
+"""
+                COPY  0x400            r1
+                COPY  0xe123           r14
+                PUSH  0xdeadbeef
+                PUSH  r14
+                PUSH  r14 + 0xabcd0000
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[output.find("	0x000003b0: "):].strip()
+                answer = \
+"""
+	0x000003b0: 0x00000000
+	0x000003b4: 0x00000000
+	0x000003b8: 0x00000000
+	0x000003bc: 0x00000000
+	0x000003c0: 0x00000000
+	0x000003c4: 0x00000000
+	0x000003c8: 0x00000000
+	0x000003cc: 0x00000000
+	0x000003d0: 0x00000000
+	0x000003d4: 0x00000000
+	0x000003d8: 0x00000000
+	0x000003dc: 0x00000000
+	0x000003e0: 0x00000000
+	0x000003e4: 0x00000000
+	0x000003e8: 0x00000000
+	0x000003ec: 0x00000000
+	0x000003f0: 0x00000000
+	0x000003f4: 0xabcde123
+	0x000003f8: 0x0000e123
+	0x000003fc: 0xdeadbeef
+""".strip()
+                self.assertEqual(output, answer)
+
+        def test_POP(self):
+                program = \
+"""
+                COPY  0x400            r1
+                PUSH  0xdeadbeef
+                PUSH  0x11223344
+                PUSH  0xaabbccdd
+                POP   r13
+                POP   r14
+                POP   r15
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0xaabbccdd
+	r14: 0x11223344
+	r15: 0xdeadbeef
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()

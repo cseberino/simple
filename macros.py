@@ -16,15 +16,21 @@
 import re
 import types
 
-REG       = "r1[0-5]|r[0-9]"
-NAT       = "0x[0-9a-f]+|\d+"
-R_AND_N   = "({})[+-]({})".format(REG, NAT)
-LABEL     = "\w+"
-WS        = ["r7", "r8", "r9", "r10"]
-SECT_LEN  = 18
-FUNC_LEN  =  8
-HALFW_LEN = 16
-HEXDEC    = 16
+REG        = "r1[0-5]|r[0-9]"
+NAT        = "0x[0-9a-f]+|\d+"
+R_AND_N    = "({})[+-]({})".format(REG, NAT)
+LABEL      = "\w+"
+WS         = ["r7", "r8", "r9", "r10"]
+STACK_BASE = 0x00000400
+STACK_PTR  = "r1"
+SECT_LEN   = 18
+FUNC_LEN   =  8
+HALFW_LEN  = 16
+WORD_LEN   =  4
+HEXDEC     = 16
+
+labels      = []
+label_count = 0
 
 def parse_arg(arg):
         result = None
@@ -70,6 +76,18 @@ def line(func, *args):
         line_ = line_.rstrip() + "\n"
 
         return line_
+
+def new_label():
+        global label_count
+
+        label_count += 1
+        label        = "_unique_{}".format(label_count)
+        while label in labels:
+                label_count += 1
+                label        = "_unique_{}".format(label_count)
+        labels.append(label)
+
+        return label
 
 def replace_(asm):
         result = ""
@@ -176,5 +194,20 @@ def JUMP(arg_1):
         result  = COPY(arg_1,   WS[2])
         result += COPY(0,       WS[0])
         result += line("zjump", WS[0], WS[2])
+
+        return result
+
+def PUSH(arg_1):
+        result  = SUB(STACK_PTR, WORD_LEN, STACK_PTR)
+        result += STORE(arg_1, STACK_PTR)
+
+        return result
+
+def POP(arg_1):
+        result  = LOAD(STACK_PTR, arg_1)
+        result += ADD(STACK_PTR, WORD_LEN, STACK_PTR)
+        result += GJUMP(STACK_BASE, STACK_PTR, [new_label()])
+        result += line("stop")
+        result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
         return result
