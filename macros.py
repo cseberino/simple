@@ -113,6 +113,9 @@ def replace(asm):
 
         return result
 
+def NOTH():
+        return line("and", "r1", "r1", "r1")
+
 def arith_log_macro(func):
         def func_(arg_1, arg_2, arg_3):
                 result  = COPY(arg_1, arg_3)
@@ -125,6 +128,21 @@ def arith_log_macro(func):
 
 for e in ["ADD", "SUB", "MULT", "DIV", "AND", "OR"]:
         globals()[e] = arith_log_macro(e.lower())
+
+def NOT(arg_1, arg_2):
+        result  = COPY(0x1,    arg_2)
+        result += ZJUMP(arg_1, [new_label()])
+        result += COPY(0x0,    arg_2)
+        result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
+
+        return result
+
+def JUMP(arg_1):
+        result  = COPY(arg_1,   WS[2])
+        result += COPY(0,       WS[0])
+        result += line("zjump", WS[0], WS[2])
+
+        return result
 
 def ZJUMP(arg_1, arg_2):
         result  = COPY(arg_1, WS[2])
@@ -183,16 +201,6 @@ def STORE(arg_1, arg_2):
         result  = COPY(arg_1, WS[2])
         result += COPY(arg_2, WS[3])
         result += line("store", WS[2], WS[3])
-
-        return result
-
-def NOTH():
-        return line("and", "r1", "r1", "r1")
-
-def JUMP(arg_1):
-        result  = COPY(arg_1,   WS[2])
-        result += COPY(0,       WS[0])
-        result += line("zjump", WS[0], WS[2])
 
         return result
 

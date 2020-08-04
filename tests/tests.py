@@ -2513,4 +2513,25 @@ label:          stop
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_NOT(self):
+                program = \
+"""
+                COPY  0x17       r12
+                NOT   r12        r13
+                NOT   0x45       r14
+                NOT   r12 - 0x17 r15
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000017
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000001
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
