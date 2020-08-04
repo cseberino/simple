@@ -16,7 +16,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import macros
-import string
 import sys
 
 FUNCS      = ["add", "sub", "mult", "div", "and", "or",
@@ -39,7 +38,7 @@ asm    = macros.replace(open(sys.argv[1]).read())
 words  = [e.strip() for e in asm.split("\n")]
 words  = [e         for e in words if e and not e.startswith("#")]
 labels = [(e.split()[0], 4 * i) for i, e in enumerate(words)]
-labels = dict([(e[0][:-1], e[1]) for e in labels if e[0].endswith(":")])
+labels = {e[0][:-1] : e[1] for e in labels if e[0].endswith(":")}
 for e in words:
         e = e.split()[1:] if e.split()[0].endswith(":") else e.split()
         if e[0] in FUNCS:

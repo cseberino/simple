@@ -14,7 +14,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import re
-import types
 
 REG        = "r1[0-5]|r[0-9]"
 NAT        = "0x[0-9a-f]+|\d+"
@@ -206,8 +205,5 @@ def PUSH(arg_1):
 def POP(arg_1):
         result  = LOAD(STACK_PTR, arg_1)
         result += ADD(STACK_PTR, WORD_LEN, STACK_PTR)
-        result += GJUMP(STACK_BASE, STACK_PTR, [new_label()])
-        result += line("stop")
-        result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
         return result
