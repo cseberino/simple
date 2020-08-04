@@ -152,10 +152,8 @@ def ZJUMP(arg_1, arg_2):
         return result
 
 def GJUMP(arg_1, arg_2, arg_3):
-        result  = COPY(arg_1, WS[2])
-        result += COPY(arg_2, WS[3])
-        result += line("sub",   WS[2], WS[3], WS[3])
-        result += DIV(WS[3], 1 << (2 * HALFW_LEN - 1), WS[3])
+        result  = SUB(arg_1,  arg_2,                    WS[3])
+        result += DIV(WS[3],  1 << (2 * HALFW_LEN - 1), WS[3])
         result += COPY(arg_3, WS[2])
         result += line("zjump", WS[3], WS[2])
 
