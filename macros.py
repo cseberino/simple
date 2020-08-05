@@ -149,7 +149,7 @@ def GJUMP(arg_1, arg_2, arg_3):
         result += DIV(WS[3],    1 << (2 * HALFW_LEN - 1), WS[3])
         result += SUB(WS[3],    0x1,                      WS[3])
         result += COPY(arg_3,   WS[2])
-        result += line("zjump", WS[3], WS[2])
+        result += line("zjump", WS[3],                    WS[2])
 
         return result
 
@@ -157,11 +157,11 @@ def GEJUMP(arg_1, arg_2, arg_3):
         result  = SUB(arg_1,    arg_2,                    WS[3])
         result += DIV(WS[3],    1 << (2 * HALFW_LEN - 1), WS[3])
         result += COPY(arg_3,   WS[2])
-        result += line("zjump", WS[3], WS[2])
+        result += line("zjump", WS[3],                    WS[2])
 
         return result
 
-LJUMP  = lambda arg_1, arg_2, arg_3 : GJUMP( arg_2, arg_1, arg_3)
+LJUMP  = lambda arg_1, arg_2, arg_3 : GJUMP(arg_2,  arg_1, arg_3)
 
 LEJUMP = lambda arg_1, arg_2, arg_3 : GEJUMP(arg_2, arg_1, arg_3)
 
