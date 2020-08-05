@@ -3449,4 +3449,23 @@ label:          stop
 """.strip()
                 self.assertEqual(output, answer)
 
+                program = \
+"""
+                NEG   0x0        r12
+                NEG   0x1        r13
+                NEG   0xffffffff r14
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0xffffffff
+	r14: 0x00000001
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
