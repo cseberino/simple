@@ -120,7 +120,7 @@ def arith_log_macro(func):
         def func_(arg_1, arg_2, arg_3):
                 result  = COPY(arg_1, arg_3)
                 result += COPY(arg_2, WS[2])
-                result += line(func, arg_3, WS[2], arg_3)
+                result += line(func,  arg_3, WS[2], arg_3)
 
                 return result
 
@@ -145,18 +145,18 @@ def JUMP(arg_1):
         return result
 
 def GJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_2,  arg_1,                    WS[3])
-        result += DIV(WS[3],  1 << (2 * HALFW_LEN - 1), WS[3])
-        result += SUB(WS[3],  0x1,                      WS[3])
-        result += COPY(arg_3, WS[2])
+        result  = SUB(arg_2,    arg_1,                    WS[3])
+        result += DIV(WS[3],    1 << (2 * HALFW_LEN - 1), WS[3])
+        result += SUB(WS[3],    0x1,                      WS[3])
+        result += COPY(arg_3,   WS[2])
         result += line("zjump", WS[3], WS[2])
 
         return result
 
 def GEJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_1,  arg_2,                    WS[3])
-        result += DIV(WS[3],  1 << (2 * HALFW_LEN - 1), WS[3])
-        result += COPY(arg_3, WS[2])
+        result  = SUB(arg_1,    arg_2,                    WS[3])
+        result += DIV(WS[3],    1 << (2 * HALFW_LEN - 1), WS[3])
+        result += COPY(arg_3,   WS[2])
         result += line("zjump", WS[3], WS[2])
 
         return result
@@ -166,30 +166,40 @@ LJUMP  = lambda arg_1, arg_2, arg_3 : GJUMP( arg_2, arg_1, arg_3)
 LEJUMP = lambda arg_1, arg_2, arg_3 : GEJUMP(arg_2, arg_1, arg_3)
 
 def ZJUMP(arg_1, arg_2):
-        result  = COPY(arg_1, WS[2])
-        result += COPY(arg_2, WS[3])
+        result  = COPY(arg_1,   WS[2])
+        result += COPY(arg_2,   WS[3])
         result += line("zjump", WS[2], WS[3])
 
         return result
 
 def EJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_1,  arg_2, WS[3])
-        result += COPY(arg_3, WS[2])
+        result  = SUB(arg_1,    arg_2, WS[3])
+        result += COPY(arg_3,   WS[2])
         result += line("zjump", WS[3], WS[2])
+
+        return result
+
+def NEJUMP(arg_1, arg_2, arg_3):
+        result  = SUB(arg_1,          arg_2, WS[3])
+        result += COPY([new_label()], WS[2])
+        result += line("zjump",       WS[3], WS[2])
+        result += COPY(arg_3,         WS[3])
+        result += JUMP(WS[3])
+        result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
         return result
 
 def COPY(arg_1, arg_2):
         if   isinstance(arg_1, str):
-                result = line("and", arg_1, arg_1, arg_2)
+                result  = line("and",   arg_1,          arg_1, arg_2)
         elif isinstance(arg_1, int):
                 lsb     = arg_1  & (2 ** HALFW_LEN - 1)
                 msb     = arg_1 >> HALFW_LEN
-                result  = line("copy", lsb,            arg_2)
-                result += line("copy", msb,            WS[0])
-                result += line("copy", 2 ** HALFW_LEN, WS[1])
-                result += line("mult", WS[0],          WS[1], WS[0])
-                result += line("add",  arg_2,          WS[0], arg_2)
+                result  = line("copy",  lsb,            arg_2)
+                result += line("copy",  msb,            WS[0])
+                result += line("copy",  2 ** HALFW_LEN, WS[1])
+                result += line("mult",  WS[0],          WS[1], WS[0])
+                result += line("add",   arg_2,          WS[0], arg_2)
         elif isinstance(arg_1, tuple):
                 result  = COPY(abs(arg_1[1]), arg_2)
                 if arg_1[1] >= 0:
@@ -197,39 +207,39 @@ def COPY(arg_1, arg_2):
                 else:
                         result += line("sub", arg_1[0], arg_2, arg_2)
         elif isinstance(arg_1, list):
-                result  = line("and",    "r0",   "r0",  arg_2)
-                result += line("copy",   "0x20", WS[0])
-                result += line("copy",   "0x4",  WS[1])
-                result += line("add",    arg_2,  WS[0], WS[0])
-                result += line("add",    WS[0],  WS[1], WS[1])
-                result += line("load",   WS[0],  arg_2)
-                result += line("copy",   "0x0",  WS[0])
-                result += line("zjump",  WS[0],  WS[1])
+                result  = line("and",   "r0",           "r0",  arg_2)
+                result += line("copy",  "0x20",         WS[0])
+                result += line("copy",  "0x4",          WS[1])
+                result += line("add",   arg_2,          WS[0], WS[0])
+                result += line("add",   WS[0],          WS[1], WS[1])
+                result += line("load",  WS[0],          arg_2)
+                result += line("copy",  "0x0",          WS[0])
+                result += line("zjump", WS[0],          WS[1])
                 result += line(arg_1[0])
 
         return result
 
 def LOAD(arg_1, arg_2):
-        result  = COPY(arg_1, arg_2)
+        result  = COPY(arg_1,  arg_2)
         result += line("load", arg_2, arg_2)
 
         return result
 
 def STORE(arg_1, arg_2):
-        result  = COPY(arg_1, WS[2])
-        result += COPY(arg_2, WS[3])
+        result  = COPY(arg_1,   WS[2])
+        result += COPY(arg_2,   WS[3])
         result += line("store", WS[2], WS[3])
 
         return result
 
 def PUSH(arg_1):
         result  = SUB(STACK_PTR, WORD_LEN, STACK_PTR)
-        result += STORE(arg_1, STACK_PTR)
+        result += STORE(arg_1,   STACK_PTR)
 
         return result
 
 def POP(arg_1):
         result  = LOAD(STACK_PTR, arg_1)
-        result += ADD(STACK_PTR, WORD_LEN, STACK_PTR)
+        result += ADD(STACK_PTR,  WORD_LEN, STACK_PTR)
 
         return result
