@@ -3407,4 +3407,25 @@ label:          stop
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_XOR(self):
+                program = \
+"""
+                COPY  0x17                   r12
+                XOR   r12       0x24         r13
+                XOR   0x45      0xaa         r14
+                XOR   r12 - 0xa r14 + 0xabcd r15
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000017
+	r13: 0x00000033
+	r14: 0x000000ef
+	r15: 0x0000acb1
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
