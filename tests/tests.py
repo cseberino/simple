@@ -2553,9 +2553,9 @@ label:          stop
                 answer = \
 """
 	r12: 0x00000017
-	r13: 0x00000000
-	r14: 0x00000000
-	r15: 0x00000001
+	r13: 0xffffffe8
+	r14: 0xffffffba
+	r15: 0xffffffff
 """.strip()
                 self.assertEqual(output, answer)
 

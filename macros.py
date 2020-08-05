@@ -130,10 +130,9 @@ for e in ["ADD", "SUB", "MULT", "DIV", "AND", "OR"]:
         globals()[e] = arith_log_macro(e.lower())
 
 def NOT(arg_1, arg_2):
-        result  = COPY(0x1,    arg_2)
-        result += ZJUMP(arg_1, [new_label()])
-        result += COPY(0x0,    arg_2)
-        result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
+        result  = COPY(arg_1, arg_2)
+        result += MULT(arg_2, 0xffffffff, arg_2)
+        result += SUB(arg_2,  0x1,        arg_2)
 
         return result
 
