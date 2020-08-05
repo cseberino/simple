@@ -168,6 +168,10 @@ def GEJUMP(arg_1, arg_2, arg_3):
 
         return result
 
+LJUMP  = lambda arg_1, arg_2, arg_3 : GJUMP( arg_2, arg_1, arg_3)
+
+LEJUMP = lambda arg_1, arg_2, arg_3 : GEJUMP(arg_2, arg_1, arg_3)
+
 def COPY(arg_1, arg_2):
         if   isinstance(arg_1, str):
                 result = line("and", arg_1, arg_1, arg_2)
