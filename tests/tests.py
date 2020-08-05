@@ -3156,4 +3156,55 @@ label:          stop
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_EJUMP(self):
+                program = \
+"""
+                copy   label      r11
+                copy   0x13       r13
+                copy   0x14       r14
+                copy   0x15       r15
+                EJUMP  r13 - 0x10 r13 - 0x10 r11 - 8
+                copy   0x22       r12
+                copy   0x23       r13
+                copy   0x24       r14
+                copy   0x25       r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000013
+	r14: 0x00000024
+	r15: 0x00000025
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy   label      r11
+                copy   0x13       r13
+                copy   0x14       r14
+                copy   0x15       r15
+                EJUMP  r13 - 0x44 r13 - 0x77 r11 - 8
+                copy   0x22       r12
+                copy   0x23       r13
+                copy   0x24       r14
+                copy   0x25       r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000022
+	r13: 0x00000023
+	r14: 0x00000024
+	r15: 0x00000025
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
