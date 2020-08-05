@@ -3428,4 +3428,25 @@ label:          stop
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_NEG(self):
+                program = \
+"""
+                COPY  0x17       r12
+                NEG   r12        r13
+                NEG   0xdeadbeef r14
+                NEG   r12 - 0xa  r15
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000017
+	r13: 0xffffffe9
+	r14: 0x21524111
+	r15: 0xfffffff3
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()

@@ -116,6 +116,12 @@ def replace(asm):
 def NOTH():
         return line("and", "r1", "r1", "r1")
 
+def NEG(arg_1, arg_2):
+        result  = NOT(arg_1, arg_2)
+        result += ADD(arg_2, 0x1,  arg_2)
+
+        return result
+
 def arith_log_macro(func):
         def func_(arg_1, arg_2, arg_3):
                 result  = COPY(arg_1, arg_3)
