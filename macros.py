@@ -86,7 +86,7 @@ def new_label():
                 label        = "_unique_{}".format(label_count)
         labels.append(label)
 
-        return label
+        return [label]
 
 def replace_(asm):
         result = ""
@@ -187,10 +187,10 @@ def ZJUMP(arg_1, arg_2):
         return result
 
 def NZJUMP(arg_1, arg_2):
-        result  = COPY(arg_1,         WS[2])
-        result += COPY([new_label()], WS[3])
-        result += line("zjump",       WS[2], WS[3])
-        result += COPY(arg_2,         WS[2])
+        result  = COPY(arg_1,       WS[2])
+        result += COPY(new_label(), WS[3])
+        result += line("zjump",     WS[2], WS[3])
+        result += COPY(arg_2,       WS[2])
         result += JUMP(WS[2])
         result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
@@ -204,10 +204,10 @@ def EJUMP(arg_1, arg_2, arg_3):
         return result
 
 def NEJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_1,          arg_2, WS[3])
-        result += COPY([new_label()], WS[2])
-        result += line("zjump",       WS[3], WS[2])
-        result += COPY(arg_3,         WS[3])
+        result  = SUB(arg_1,        arg_2, WS[3])
+        result += COPY(new_label(), WS[2])
+        result += line("zjump",     WS[3], WS[2])
+        result += COPY(arg_3,       WS[3])
         result += JUMP(WS[3])
         result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
@@ -269,7 +269,7 @@ def POP(arg_1):
         return result
 
 def CALL(*args):
-        result  = PUSH([new_label()])
+        result  = PUSH(new_label())
         for e in reversed(args[1:]):
                 result += PUSH(e)
         result += JUMP(args[0])

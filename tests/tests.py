@@ -2461,13 +2461,13 @@ label:          stop
         def test_label_sys(self):
                 importlib.reload(macros)
 
-                output = "_unique_1"
-                answer = macros.new_label()
+                output = macros.new_label()
+                answer = ["_unique_1"]
                 self.assertEqual(output, answer)
 
                 macros.labels.append("_unique_2")
-                output = "_unique_3"
-                answer = macros.new_label()
+                output = macros.new_label()
+                answer = ["_unique_3"]
                 self.assertEqual(output, answer)
 
                 for i in range(4, 101):
