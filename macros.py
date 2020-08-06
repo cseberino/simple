@@ -267,3 +267,12 @@ def POP(arg_1):
         result += ADD(STACK_PTR,  WORD_LEN, STACK_PTR)
 
         return result
+
+def CALL(*args):
+        result  = PUSH([new_label()])
+        for e in reversed(args[1:]):
+                result += PUSH(e)
+        result += JUMP(args[0])
+        result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
+
+        return result
