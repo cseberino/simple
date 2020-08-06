@@ -3481,8 +3481,8 @@ adder:          POP   r12
 
                 ADD   r12   r13 r15
                 ADD   r15   r14 r15
-                POP   r11
-                JUMP  r11
+                POP   r2
+                JUMP  r2
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3493,6 +3493,27 @@ adder:          POP   r12
 	r13: 0x00000004
 	r14: 0x00000006
 	r15: 0x0000000c
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY  0x400 r1
+                CALL  nada
+                stop
+
+nada:           POP   r2
+                JUMP  r2
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
 """.strip()
                 self.assertEqual(output, answer)
 
