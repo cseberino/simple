@@ -293,12 +293,23 @@ def IF(*args):
         else:
                 result = COPY(args[0], RET_VAL)
         if_indices.append(len(labels))
+        result += PUSH(0x1)
         result += ZJUMP(RET_VAL, new_label())
+        result += POP(WS[3])
+        result += PUSH(0x0)
+
+        return result
+
+def ELSE():
+        result  = LOAD(STACK_PTR, WS[3])
+        result += ENDIF()
+        result += IF(WS[3])
 
         return result
 
 def ENDIF():
-        index  = if_indices.pop()
-        result = (labels[index] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
+        index   = if_indices.pop()
+        result  = POP(WS[3])
+        result += (labels[index] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
         return result

@@ -3681,4 +3681,49 @@ adder:          POP    r12
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_ELSE(self):
+                program = \
+"""
+                COPY   0x400 r1
+                IF     0x1
+                        COPY 0xdeadbeef r12
+                ELSE
+                        COPY 0x998877aa r12
+                ENDIF
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0xdeadbeef
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY   0x400 r1
+                IF     0x0
+                        COPY 0xdeadbeef r12
+                ELSE
+                        COPY 0x998877aa r12
+                ENDIF
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x998877aa
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
