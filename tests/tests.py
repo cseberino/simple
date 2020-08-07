@@ -3517,4 +3517,62 @@ nada:           POP   r2
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_RETURN(self):
+                program = \
+"""
+                COPY   0x400 r1
+                CALL   adder 0x2 0x4 0x6
+                stop
+
+adder:          POP    r12
+                POP    r13
+                POP    r14
+
+                ADD    r12   r13 r15
+                ADD    r15   r14 r15
+
+                RETURN
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000002
+	r13: 0x00000004
+	r14: 0x00000006
+	r15: 0x0000000c
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY   0x400 r1
+                CALL   adder 0x2 0x4 0x6
+                stop
+
+adder:          POP    r12
+                POP    r13
+                POP    r14
+
+                ADD    r12   r13 r15
+                ADD    r15   r14 r15
+
+                RETURN r15
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()
+                output = output[30 + 2 * 17:30 + 3 * 17] + output[30 + 11 * 17:]
+                output = output.strip()
+                answer = \
+"""
+	 r3: 0x0000000c
+	r12: 0x00000002
+	r13: 0x00000004
+	r14: 0x00000006
+	r15: 0x0000000c
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()

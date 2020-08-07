@@ -22,6 +22,8 @@ LABEL      = "\w+"
 WS         = ["r7", "r8", "r9", "r10"]
 STACK_BASE = 0x00000400
 STACK_PTR  = "r1"
+RET_PTR    = "r2"
+RET_VAL    = "r3"
 SECT_LEN   = 18
 FUNC_LEN   =  8
 HALFW_LEN  = 16
@@ -274,5 +276,12 @@ def CALL(*args):
                 result += PUSH(e)
         result += JUMP(args[0])
         result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
+
+        return result
+
+def RETURN(arg_1 = False):
+        result  = COPY(arg_1, RET_VAL) if arg_1 else ""
+        result += POP(RET_PTR)
+        result += JUMP(RET_PTR)
 
         return result
