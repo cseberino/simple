@@ -32,6 +32,7 @@ HEXDEC     = 16
 
 labels      = []
 label_count = 0
+if_indices  = []
 
 def parse_arg(arg):
         result = None
@@ -283,5 +284,21 @@ def RETURN(arg_1 = False):
         result  = COPY(arg_1, RET_VAL) if arg_1 else ""
         result += POP(RET_PTR)
         result += JUMP(RET_PTR)
+
+        return result
+
+def IF(*args):
+        if isinstance(args[0], list):
+                result = CALL(*args)
+        else:
+                result = COPY(args[0], RET_VAL)
+        if_indices.append(len(labels))
+        result += ZJUMP(RET_VAL, new_label())
+
+        return result
+
+def ENDIF():
+        index  = if_indices.pop()
+        result = (labels[index] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
         return result

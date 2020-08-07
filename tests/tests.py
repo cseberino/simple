@@ -3575,4 +3575,110 @@ adder:          POP    r12
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_IF(self):
+                program = \
+"""
+                COPY   0x400 r1
+                IF     adder 0x2 0x4 0x6
+                        COPY 0xdeadbeef r11
+                ENDIF
+                stop
+
+adder:          POP    r12
+                POP    r13
+                POP    r14
+
+                ADD    r12   r13 r15
+                ADD    r15   r14 r15
+
+                RETURN r15
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()
+                output = output[30 + 2 * 17:30 + 3 * 17] + output[30 + 10 * 17:]
+                output = output.strip()
+                answer = \
+"""
+	 r3: 0x0000000c
+	r11: 0xdeadbeef
+	r12: 0x00000002
+	r13: 0x00000004
+	r14: 0x00000006
+	r15: 0x0000000c
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY   0x400 r1
+                IF     r1
+                        COPY 0xdeadbeef r11
+                ENDIF
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()
+                output = output[30 + 2 * 17:30 + 3 * 17] + output[30 + 10 * 17:]
+                output = output.strip()
+                answer = \
+"""
+	 r3: 0x00000400
+	r11: 0xdeadbeef
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY   0x400 r1
+                IF     0xabc
+                        COPY 0xdeadbeef r11
+                ENDIF
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()
+                output = output[30 + 2 * 17:30 + 3 * 17] + output[30 + 10 * 17:]
+                output = output.strip()
+                answer = \
+"""
+	 r3: 0x00000abc
+	r11: 0xdeadbeef
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY   0x400 r1
+                IF     0x0
+                        COPY 0xdeadbeef r11
+                ENDIF
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()
+                output = output[30 + 2 * 17:30 + 3 * 17] + output[30 + 10 * 17:]
+                output = output.strip()
+                answer = \
+"""
+	 r3: 0x00000000
+	r11: 0x00000000
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
