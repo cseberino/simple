@@ -3726,4 +3726,28 @@ adder:          POP    r12
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_WHILE(self):
+                program = \
+"""
+                COPY   0x400 r1
+                COPY   0x100 r14
+                COPY   0x5   r15
+                WHILE  r15
+                        ADD r14 0x1 r14
+                        SUB r15 0x1 r15
+                ENDWHILE
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000105
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
