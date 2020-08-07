@@ -324,7 +324,6 @@ def WHILE(*args):
 
 def ENDWHILE():
         result  = JUMP([labels[while_inds.pop()]])
-        result += ELSE()
         result += ENDIF()
 
         return result
