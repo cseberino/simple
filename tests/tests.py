@@ -3904,4 +3904,88 @@ adder:          POP    r12
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_nested_IFs(self):
+                program = \
+"""
+                COPY 0x400 r1
+
+                IF 0x1
+                        COPY 0xdeadbeef r12
+                        IF   0x3
+                                COPY 0xabc r13
+                        ENDIF
+                ENDIF
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0xdeadbeef
+	r13: 0x00000abc
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY 0x400 r1
+
+                IF 0x1
+                        COPY 0xdeadbeef r12
+                        IF   0x3
+                                COPY 0xabc r13
+                        ENDIF
+                        IF   0x0
+                                COPY 0xdef r13
+                        ENDIF
+                ELSE
+                        COPY 0x998877aa r12
+                ENDIF
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0xdeadbeef
+	r13: 0x00000abc
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY 0x400 r1
+
+                IF r1
+                        COPY 0xdeadbeef r12
+                        IF   0x3
+                                COPY 0xabc r13
+                        ENDIF
+                        IF   r12 + 0xabc
+                                COPY 0xdef r14
+                        ENDIF
+                ENDIF
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0xdeadbeef
+	r13: 0x00000abc
+	r14: 0x00000def
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
