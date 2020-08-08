@@ -3592,7 +3592,7 @@ adder:          POP    r12
 """
                 COPY 0x400 r1
 
-                IF     adder 0x2 0x4 0x6
+                IF adder 0x2 0x4 0x6
                         COPY 0xdeadbeef r11
                 ENDIF
 
@@ -3627,7 +3627,7 @@ adder:          POP    r12
 """
                 COPY 0x400 r1
 
-                IF     r1
+                IF r1
                         COPY 0xdeadbeef r11
                 ENDIF
 
@@ -3653,7 +3653,7 @@ adder:          POP    r12
 """
                 COPY 0x400 r1
 
-                IF     0xabc
+                IF 0xabc
                         COPY 0xdeadbeef r11
                 ENDIF
 
@@ -3679,7 +3679,7 @@ adder:          POP    r12
 """
                 COPY 0x400 r1
 
-                IF     0x0
+                IF 0x0
                         COPY 0xdeadbeef r11
                 ENDIF
 
@@ -3706,7 +3706,7 @@ adder:          POP    r12
 """
                 COPY 0x400 r1
 
-                IF     0x1
+                IF 0x1
                         COPY 0xdeadbeef r12
                 ELSE
                         COPY 0x998877aa r12
@@ -3730,7 +3730,7 @@ adder:          POP    r12
 """
                 COPY 0x400 r1
 
-                IF     0x0
+                IF 0x0
                         COPY 0xdeadbeef r12
                 ELSE
                         COPY 0x998877aa r12
