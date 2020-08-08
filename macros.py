@@ -155,6 +155,16 @@ def XOR(arg_1, arg_2, arg_3):
 
         return result
 
+def LSHIFT(arg_1, arg_2, arg_3):
+        result  = COPY(arg_1, arg_3)
+        result += COPY(arg_2, WS[3])
+        result += WHILE(WS[3])
+        result += MULT(arg_3, 0x2,  arg_3)
+        result += SUB(WS[3],  0x1,  WS[3])
+        result += ENDWHILE()
+
+        return result
+
 def RSHIFT(arg_1, arg_2, arg_3):
         result  = COPY(arg_1, arg_3)
         result += COPY(arg_2, WS[3])

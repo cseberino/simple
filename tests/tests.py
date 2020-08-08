@@ -2479,11 +2479,13 @@ label:          stop
         def test_PUSH(self):
                 program = \
 """
-                COPY  0x400            r1
+                COPY 0x400 r1
+
                 COPY  0xe123           r14
                 PUSH  0xdeadbeef
                 PUSH  r14
                 PUSH  r14 + 0xabcd0000
+
                 stop
 """
                 output = get_output(program)
@@ -2517,13 +2519,15 @@ label:          stop
         def test_POP(self):
                 program = \
 """
-                COPY  0x400            r1
+                COPY 0x400 r1
+
                 PUSH  0xdeadbeef
                 PUSH  0x11223344
                 PUSH  0xaabbccdd
                 POP   r13
                 POP   r14
                 POP   r15
+
                 stop
 """
                 output = get_output(program)
@@ -3471,8 +3475,10 @@ label:          stop
         def test_CALL(self):
                 program = \
 """
-                COPY  0x400 r1
+                COPY 0x400 r1
+
                 CALL  adder 0x2 0x4 0x6
+
                 stop
 
 adder:          POP   r12
@@ -3498,8 +3504,10 @@ adder:          POP   r12
 
                 program = \
 """
-                COPY  0x400 r1
+                COPY 0x400 r1
+
                 CALL  nada
+
                 stop
 
 nada:           POP   r2
@@ -3520,8 +3528,10 @@ nada:           POP   r2
         def test_RETURN(self):
                 program = \
 """
-                COPY   0x400 r1
+                COPY 0x400 r1
+
                 CALL   adder 0x2 0x4 0x6
+
                 stop
 
 adder:          POP    r12
@@ -3547,8 +3557,10 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY   0x400 r1
+                COPY 0x400 r1
+
                 CALL   adder 0x2 0x4 0x6
+
                 stop
 
 adder:          POP    r12
@@ -3578,10 +3590,12 @@ adder:          POP    r12
         def test_IF(self):
                 program = \
 """
-                COPY   0x400 r1
+                COPY 0x400 r1
+
                 IF     adder 0x2 0x4 0x6
                         COPY 0xdeadbeef r11
                 ENDIF
+
                 stop
 
 adder:          POP    r12
@@ -3611,10 +3625,12 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY   0x400 r1
+                COPY 0x400 r1
+
                 IF     r1
                         COPY 0xdeadbeef r11
                 ENDIF
+
                 stop
 """
                 output = get_output(program)
@@ -3635,10 +3651,12 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY   0x400 r1
+                COPY 0x400 r1
+
                 IF     0xabc
                         COPY 0xdeadbeef r11
                 ENDIF
+
                 stop
 """
                 output = get_output(program)
@@ -3659,10 +3677,12 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY   0x400 r1
+                COPY 0x400 r1
+
                 IF     0x0
                         COPY 0xdeadbeef r11
                 ENDIF
+
                 stop
 """
                 output = get_output(program)
@@ -3684,12 +3704,14 @@ adder:          POP    r12
         def test_ELSE(self):
                 program = \
 """
-                COPY   0x400 r1
+                COPY 0x400 r1
+
                 IF     0x1
                         COPY 0xdeadbeef r12
                 ELSE
                         COPY 0x998877aa r12
                 ENDIF
+
                 stop
 """
                 output = get_output(program)
@@ -3706,12 +3728,14 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY   0x400 r1
+                COPY 0x400 r1
+
                 IF     0x0
                         COPY 0xdeadbeef r12
                 ELSE
                         COPY 0x998877aa r12
                 ENDIF
+
                 stop
 """
                 output = get_output(program)
@@ -3729,13 +3753,15 @@ adder:          POP    r12
         def test_WHILE(self):
                 program = \
 """
-                COPY   0x400 r1
+                COPY 0x400 r1
+
                 COPY   0x100 r14
                 COPY   0x5   r15
                 WHILE  r15
                         ADD r14 0x1 r14
                         SUB r15 0x1 r15
                 ENDWHILE
+
                 stop
 """
                 output = get_output(program)
@@ -3753,9 +3779,11 @@ adder:          POP    r12
         def test_RSHIFT(self):
                 program = \
 """
-                COPY   0x400 r1
+                COPY 0x400 r1
+
                 RSHIFT 0x8        0x1  r12
                 RSHIFT 0xffffffff 0x10 r13
+
                 stop
 """
                 output = get_output(program)
@@ -3765,6 +3793,28 @@ adder:          POP    r12
 """
 	r12: 0x00000004
 	r13: 0x0000ffff
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+        def test_LSHIFT(self):
+                program = \
+"""
+                COPY 0x400 r1
+
+                LSHIFT 0x8       0x1 r12
+                LSHIFT 0xfffffff 0x4 r13
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000010
+	r13: 0xfffffff0
 	r14: 0x00000000
 	r15: 0x00000000
 """.strip()
