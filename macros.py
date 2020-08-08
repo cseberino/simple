@@ -155,6 +155,16 @@ def XOR(arg_1, arg_2, arg_3):
 
         return result
 
+def RSHIFT(arg_1, arg_2, arg_3):
+        result  = COPY(arg_1, arg_3)
+        result += COPY(arg_2, WS[3])
+        result += WHILE(WS[3])
+        result += DIV(arg_3,  0x2,  arg_3)
+        result += SUB(WS[3],  0x1,  WS[3])
+        result += ENDWHILE()
+
+        return result
+
 def JUMP(arg_1):
         result  = COPY(arg_1,   WS[2])
         result += COPY(0,       WS[0])
@@ -262,7 +272,8 @@ def STORE(arg_1, arg_2):
 
 def PUSH(arg_1):
         result  = SUB(STACK_PTR, WORD_LEN, STACK_PTR)
-        result += STORE(arg_1,   STACK_PTR)
+        result += COPY(arg_1,    WS[2])
+        result += line("store",  WS[2],    STACK_PTR)
 
         return result
 
@@ -295,22 +306,23 @@ def IF(*args):
                 result = COPY(args[0], RET_VAL)
         if_inds.append(len(labels))
         result += PUSH(0x1)
-        result += ZJUMP(RET_VAL, new_label())
-        result += POP(WS[3])
+        result += COPY(new_label(), WS[2])
+        result += line("zjump",     RET_VAL, WS[2])
+        result += POP(WS[2])
         result += PUSH(0x0)
 
         return result
 
 def ELSE():
-        result  = LOAD(STACK_PTR, WS[3])
-        result += ENDIF()
-        result += IF(WS[3])
+        result  = ENDIF()
+        result += LOAD(STACK_PTR, WS[2])
+        result += IF(WS[2])
 
         return result
 
 def ENDIF():
         index   = if_inds.pop()
-        result  = POP(WS[3])
+        result  = POP(WS[2])
         result += (labels[index] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
         return result

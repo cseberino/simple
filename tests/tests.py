@@ -3750,4 +3750,24 @@ adder:          POP    r12
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_RSHIFT(self):
+                program = \
+"""
+                COPY   0x400 r1
+                RSHIFT 0x8        0x1  r12
+                RSHIFT 0xffffffff 0x10 r13
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000004
+	r13: 0x0000ffff
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
