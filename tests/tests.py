@@ -3781,8 +3781,8 @@ adder:          POP    r12
 """
                 COPY 0x400 r1
 
-                RSHIFT 0x8        0x1  r12
-                RSHIFT 0xffffffff 0x10 r13
+                RSHIFT 0x8 0x1 r12
+                RSHIFT 0x8 0x2 r13
 
                 stop
 """
@@ -3792,7 +3792,49 @@ adder:          POP    r12
                 answer = \
 """
 	r12: 0x00000004
-	r13: 0x0000ffff
+	r13: 0x00000002
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY 0x400 r1
+
+                RSHIFT 0xffffffff 0x10 r12
+                RSHIFT 0xffffffff 0x20 r13
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x0000ffff
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY 0x400 r1
+
+                RSHIFT 2878234 0x9 r12
+                RSHIFT 2878234 0xc r13
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x000015f5
+	r13: 0x000002be
 	r14: 0x00000000
 	r15: 0x00000000
 """.strip()
@@ -3803,8 +3845,8 @@ adder:          POP    r12
 """
                 COPY 0x400 r1
 
-                LSHIFT 0x8       0x1 r12
-                LSHIFT 0xfffffff 0x4 r13
+                LSHIFT 0x8 0x1 r12
+                LSHIFT 0x8 0x2 r13
 
                 stop
 """
@@ -3814,7 +3856,49 @@ adder:          POP    r12
                 answer = \
 """
 	r12: 0x00000010
-	r13: 0xfffffff0
+	r13: 0x00000020
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY 0x400 r1
+
+                LSHIFT 0xfffffff 0x10 r12
+                LSHIFT 0xfffffff 0x20 r13
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0xffff0000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY 0x400 r1
+
+                LSHIFT 15731 0x6 r12
+                LSHIFT 15731 0xa r13
+
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x000f5cc0
+	r13: 0x00f5cc00
 	r14: 0x00000000
 	r15: 0x00000000
 """.strip()
