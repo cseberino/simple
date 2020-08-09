@@ -4074,4 +4074,74 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           400 r1
+
+                IF 0xabc
+                        IF 0xabc
+                                IF 0xabc
+                                        COPY 0xdeadbeef r12
+                                ENDIF
+                        ENDIF
+                ENDIF
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0xdeadbeef
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           400 r1
+
+                IF 0xabc
+                        COPY 0x11f r11
+                        IF r11
+                                COPY 0x22f r12
+                                IF 0x0
+                                        COPY 0xdeadbeef r13
+                                ENDIF
+                                IF 0x3
+                                        COPY 0xdeadbe22 r14
+                                ENDIF
+                        ENDIF
+                        IF 0x0
+                                COPY 0x331 r11
+                        ENDIF
+                        IF r14 + 0x45
+                                COPY 0xff3322 r15
+                        ENDIF
+                ENDIF
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 10 * 17:]
+                answer = \
+"""
+	r11: 0x0000011f
+	r12: 0x0000022f
+	r13: 0x00000000
+	r14: 0xdeadbe22
+	r15: 0x00ff3322
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
