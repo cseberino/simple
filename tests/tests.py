@@ -3955,6 +3955,32 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           400 r1
+
+                COPY   0xf      r11
+                LSHIFT 81751875 6   r12
+                LSHIFT 81751875 9   r13
+                LSHIFT 81751875 r11 r14
+                LSHIFT 81751875 28  r15
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x37dbd0c0
+	r13: 0xbede8600
+	r14: 0xb7a18000
+	r15: 0x30000000
+""".strip()
+                self.assertEqual(output, answer)
+
         def test_nested_IFs(self):
                 program = \
 """
