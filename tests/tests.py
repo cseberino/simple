@@ -4144,4 +4144,73 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_nested_WHILEs(self):
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           400 r1
+
+                COPY  0x100 r12
+                COPY  0x5   r13
+                COPY  45    r14
+                WHILE r13
+                        ADD   r12 0x1 r12
+                        SUB   r13 0x1 r13
+                        COPY  r13 r15
+                        WHILE r15
+                                ADD r14 5   r14
+                                SUB r15 0x1 r15
+                        ENDWHILE
+                ENDWHILE
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000105
+	r13: 0x00000000
+	r14: 0x0000005f
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           1000 r1
+
+                COPY 0x100 r15
+
+                COPY  0x8 r12
+                WHILE r12
+                        COPY  0xa r13
+                        WHILE r13
+                                ADD r15 1   r15
+                                SUB r13 0x1 r13
+                        ENDWHILE
+                        SUB r12 0x1 r12
+                ENDWHILE
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 10 * 17:]
+                answer = \
+"""
+	r11: 0x00000000
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000150
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
