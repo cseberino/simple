@@ -2519,7 +2519,8 @@ label:          stop
         def test_POP(self):
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 PUSH  0xdeadbeef
                 PUSH  0x11223344
@@ -2529,6 +2530,8 @@ label:          stop
                 POP   r15
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3475,7 +3478,8 @@ label:          stop
         def test_CALL(self):
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 CALL  adder 0x2 0x4 0x6
 
@@ -3489,6 +3493,8 @@ adder:          POP   r12
                 ADD   r15   r14 r15
                 POP   r2
                 JUMP  r2
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3504,7 +3510,8 @@ adder:          POP   r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 CALL  nada
 
@@ -3512,6 +3519,8 @@ adder:          POP   r12
 
 nada:           POP   r2
                 JUMP  r2
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3528,7 +3537,8 @@ nada:           POP   r2
         def test_RETURN(self):
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 CALL   adder 0x2 0x4 0x6
 
@@ -3542,6 +3552,8 @@ adder:          POP    r12
                 ADD    r15   r14 r15
 
                 RETURN
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3557,7 +3569,8 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 CALL   adder 0x2 0x4 0x6
 
@@ -3571,6 +3584,8 @@ adder:          POP    r12
                 ADD    r15   r14 r15
 
                 RETURN r15
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3590,7 +3605,8 @@ adder:          POP    r12
         def test_IF(self):
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 IF adder 0x2 0x4 0x6
                         COPY 0xdeadbeef r11
@@ -3606,6 +3622,8 @@ adder:          POP    r12
                 ADD    r15   r14 r15
 
                 RETURN r15
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3625,22 +3643,22 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 IF r1
                         COPY 0xdeadbeef r11
                 ENDIF
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
-                output = output[:output.find("memory")].strip()
-                output = output[30 + 2 * 17:30 + 3 * 17] + output[30 + 10 * 17:]
-                output = output.strip()
+                output = output[:output.find("memory")].strip()[30 + 10 * 17:]
                 answer = \
 """
-	 r3: 0x00000400
 	r11: 0xdeadbeef
 	r12: 0x00000000
 	r13: 0x00000000
@@ -3651,13 +3669,16 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 IF 0xabc
                         COPY 0xdeadbeef r11
                 ENDIF
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3677,13 +3698,16 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 IF 0x0
                         COPY 0xdeadbeef r11
                 ENDIF
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3704,7 +3728,8 @@ adder:          POP    r12
         def test_ELSE(self):
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 IF 0x1
                         COPY 0xdeadbeef r12
@@ -3713,6 +3738,8 @@ adder:          POP    r12
                 ENDIF
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3728,7 +3755,8 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 IF 0x0
                         COPY 0xdeadbeef r12
@@ -3737,6 +3765,8 @@ adder:          POP    r12
                 ENDIF
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3753,7 +3783,8 @@ adder:          POP    r12
         def test_WHILE(self):
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 COPY   0x100 r14
                 COPY   0x5   r15
@@ -3763,6 +3794,8 @@ adder:          POP    r12
                 ENDWHILE
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3779,12 +3812,15 @@ adder:          POP    r12
         def test_RSHIFT(self):
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 RSHIFT 0x8 0x1 r12
                 RSHIFT 0x8 0x2 r13
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3800,12 +3836,15 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 RSHIFT 0xffffffff 0x10 r12
                 RSHIFT 0xffffffff 0x20 r13
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3821,12 +3860,15 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 RSHIFT 2878234 0x9 r12
                 RSHIFT 2878234 0xc r13
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3843,12 +3885,15 @@ adder:          POP    r12
         def test_LSHIFT(self):
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 LSHIFT 0x8 0x1 r12
                 LSHIFT 0x8 0x2 r13
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3864,12 +3909,15 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 LSHIFT 0xfffffff 0x10 r12
                 LSHIFT 0xfffffff 0x20 r13
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3885,12 +3933,15 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 LSHIFT 15731 0x6 r12
                 LSHIFT 15731 0xa r13
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3907,7 +3958,8 @@ adder:          POP    r12
         def test_nested_IFs(self):
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 IF 0x1
                         COPY 0xdeadbeef r12
@@ -3917,6 +3969,8 @@ adder:          POP    r12
                 ENDIF
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3932,7 +3986,8 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 IF 0x1
                         COPY 0xdeadbeef r12
@@ -3947,6 +4002,8 @@ adder:          POP    r12
                 ENDIF
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3962,7 +4019,8 @@ adder:          POP    r12
 
                 program = \
 """
-                COPY 0x400 r1
+                COPY code_seg_end r1
+                ADD  r1           400 r1
 
                 IF r1
                         COPY 0xdeadbeef r12
@@ -3975,6 +4033,8 @@ adder:          POP    r12
                 ENDIF
 
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()

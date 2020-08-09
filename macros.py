@@ -20,7 +20,6 @@ NAT        = "0x[0-9a-f]+|\d+"
 R_AND_N    = "({})[+-]({})".format(REG, NAT)
 LABEL      = "\w+"
 WS         = ["r7", "r8", "r9", "r10"]
-STACK_BASE = 0x00000400
 STACK_PTR  = "r1"
 RET_PTR    = "r2"
 RET_VAL    = "r3"
