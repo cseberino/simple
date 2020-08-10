@@ -157,10 +157,12 @@ def NOT(arg_1, arg_2):
         return result
 
 def XOR(arg_1, arg_2, arg_3):
-        result  = NOT(arg_1, WS[3])
+        result  = OR(arg_1,  arg_2, WS[3])
+        result += PUSH(WS[3])
+        result += NOT(arg_1, WS[3])
         result += NOT(arg_2, arg_3)
         result += OR(WS[3],  arg_3, WS[3])
-        result += OR(arg_1,  arg_2, arg_3)
+        result += POP(arg_3)
         result += AND(arg_3, WS[3], arg_3)
 
         return result

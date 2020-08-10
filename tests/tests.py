@@ -3435,11 +3435,17 @@ label:          stop
         def test_XOR(self):
                 program = \
 """
+                COPY code_seg_end r1
+                ADD  r1           1000 r1
+
                 COPY  0x17                   r12
                 XOR   r12       0x24         r13
                 XOR   0x45      0xaa         r14
                 XOR   r12 - 0xa r14 + 0xabcd r15
+
                 stop
+
+code_seg_end:   NOTH
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3450,6 +3456,58 @@ label:          stop
 	r13: 0x00000033
 	r14: 0x000000ef
 	r15: 0x0000acb1
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           1000 r1
+
+                COPY  0x17                   r12
+                XOR   r12       0x24         r13
+                XOR   0x45      0xaa         r14
+                XOR   r12 - 0xa r14 + 0xabcd r15
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000017
+	r13: 0x00000033
+	r14: 0x000000ef
+	r15: 0x0000acb1
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           1000 r1
+
+                COPY 0xd9a3     r12
+                XOR  0xaa88ee11 r12 r12
+                COPY 0x9        r13
+                XOR  r13        2   r13
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0xaa8837b2
+	r13: 0x0000000b
+	r14: 0x00000000
+	r15: 0x00000000
 """.strip()
                 self.assertEqual(output, answer)
 
@@ -4332,6 +4390,30 @@ code_seg_end:   NOTH
 	r13: 0x000000a7
 	r14: 0x000002d1
 	r15: 0x00000033
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           1000 r1
+
+                COPY 0x9 r12
+                MOD  r12 2   r12
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000001
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
 """.strip()
                 self.assertEqual(output, answer)
 
