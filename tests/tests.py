@@ -3436,7 +3436,7 @@ label:          stop
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           1000 r1
+                ADD  r1           400 r1
 
                 COPY  0x17                   r12
                 XOR   r12       0x24         r13
@@ -3462,7 +3462,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           1000 r1
+                ADD  r1           400 r1
 
                 COPY  0x17                   r12
                 XOR   r12       0x24         r13
@@ -3488,7 +3488,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           1000 r1
+                ADD  r1           400 r1
 
                 COPY 0xd9a3     r12
                 XOR  0xaa88ee11 r12 r12
@@ -4306,7 +4306,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           1000 r1
+                ADD  r1           400 r1
 
                 COPY 0x100 r15
 
@@ -4341,7 +4341,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           1000 r1
+                ADD  r1           400 r1
 
                 COPY 0x14 r13
                 COPY 0x3  r14
@@ -4369,7 +4369,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           1000 r1
+                ADD  r1           400 r1
 
                 COPY 0xd9a3     r12
                 MOD  0xaa88ee11 r12   r12
@@ -4396,7 +4396,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           1000 r1
+                ADD  r1           400 r1
 
                 COPY 0x9 r12
                 MOD  r12 2   r12
