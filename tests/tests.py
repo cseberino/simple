@@ -4279,4 +4279,60 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_MOD(self):
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           1000 r1
+
+                COPY 0x14 r13
+                COPY 0x3  r14
+                MOD  0x9  2   r12
+                MOD  r13  2   r13
+                MOD  0x8  r14 r14
+                MOD  151  7   r15
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000001
+	r13: 0x00000000
+	r14: 0x00000002
+	r15: 0x00000004
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           1000 r1
+
+                COPY 0xd9a3     r12
+                MOD  0xaa88ee11 r12   r12
+                MOD  818116     671   r13
+                MOD  25272181   15894 r14
+                MOD  23424      147   r15
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00005d49
+	r13: 0x000000a7
+	r14: 0x000002d1
+	r15: 0x00000033
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()

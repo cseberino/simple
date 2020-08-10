@@ -138,6 +138,17 @@ def arith_log_macro(func):
 for e in ["ADD", "SUB", "MULT", "DIV", "AND", "OR"]:
         globals()[e] = arith_log_macro(e.lower())
 
+def MOD(arg_1, arg_2, arg_3):
+        result  = PUSH(arg_1)
+        result += PUSH(arg_2)
+        result += DIV(arg_1,  arg_2, arg_3)
+        result += POP(WS[3])
+        result += MULT(WS[3], arg_3, arg_3)
+        result += POP(WS[3])
+        result += SUB(WS[3],  arg_3, arg_3)
+
+        return result
+
 def NOT(arg_1, arg_2):
         result  = COPY(arg_1, arg_2)
         result += MULT(arg_2, 0xffffffff, arg_2)
