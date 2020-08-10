@@ -1776,6 +1776,24 @@ label:          and  r1 r1 r1
 """.strip()
                 self.assertEqual(output, answer)
 
+                program = \
+"""
+                COPY 0xc   r12
+                SUB  0xabc r12 r12
+                stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000ab0
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
         def test_LOAD(self):
                 program = \
 """
@@ -3882,6 +3900,30 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           400 r1
+
+                COPY   0x4    r12
+                RSHIFT 0xabcd r12 r12
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000abc
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
         def test_LSHIFT(self):
                 program = \
 """
@@ -3978,6 +4020,30 @@ code_seg_end:   NOTH
 	r13: 0xbede8600
 	r14: 0xb7a18000
 	r15: 0x30000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           400 r1
+
+                COPY   0x4    r12
+                LSHIFT 0xabcd r12 r12
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x000abcd0
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000000
 """.strip()
                 self.assertEqual(output, answer)
 

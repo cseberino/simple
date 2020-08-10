@@ -127,9 +127,9 @@ def NEG(arg_1, arg_2):
 
 def arith_log_macro(func):
         def func_(arg_1, arg_2, arg_3):
-                result  = COPY(arg_1, arg_3)
-                result += COPY(arg_2, WS[2])
-                result += line(func,  arg_3, WS[2], arg_3)
+                result  = COPY(arg_1, WS[2])
+                result += COPY(arg_2, arg_3)
+                result += line(func,  WS[2], arg_3, arg_3)
 
                 return result
 
@@ -155,22 +155,24 @@ def XOR(arg_1, arg_2, arg_3):
         return result
 
 def LSHIFT(arg_1, arg_2, arg_3):
-        result  = COPY(arg_1, arg_3)
-        result += COPY(arg_2, WS[3])
-        result += WHILE(WS[3])
-        result += MULT(arg_3, 0x2,  arg_3)
-        result += SUB(WS[3],  0x1,  WS[3])
+        result  = COPY(arg_1, WS[3])
+        result += COPY(arg_2, arg_3)
+        result += WHILE(arg_3)
+        result += MULT(WS[3], 0x2,  WS[3])
+        result += SUB(arg_3,  0x1,  arg_3)
         result += ENDWHILE()
+        result += COPY(WS[3], arg_3)
 
         return result
 
 def RSHIFT(arg_1, arg_2, arg_3):
-        result  = COPY(arg_1, arg_3)
-        result += COPY(arg_2, WS[3])
-        result += WHILE(WS[3])
-        result += DIV(arg_3,  0x2,  arg_3)
-        result += SUB(WS[3],  0x1,  WS[3])
+        result  = COPY(arg_1, WS[3])
+        result += COPY(arg_2, arg_3)
+        result += WHILE(arg_3)
+        result += DIV(WS[3],  0x2,  WS[3])
+        result += SUB(arg_3,  0x1,  arg_3)
         result += ENDWHILE()
+        result += COPY(WS[3], arg_3)
 
         return result
 
