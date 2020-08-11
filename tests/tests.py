@@ -4337,6 +4337,51 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           400 r1
+
+                copy  0xe r15
+                copy  0x1 r11
+
+                copy  0x3 r12
+                WHILE r12
+
+                        copy  0x4 r13
+                        WHILE r13
+
+                                copy  0x5 r14
+                                WHILE r14
+
+                                        add r15 r11 r15
+
+                                        sub r14 r11 r14
+                                ENDWHILE
+
+                                sub r13 r11 r13
+                        ENDWHILE
+
+                        sub r12 r11 r12
+                ENDWHILE
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 10 * 17:]
+                answer = \
+"""
+	r11: 0x00000001
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x0000004a
+""".strip()
+                self.assertEqual(output, answer)
+
         def test_MOD(self):
                 program = \
 """
