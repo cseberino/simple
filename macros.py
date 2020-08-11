@@ -15,19 +15,21 @@
 
 import re
 
-REG        = "r1[0-5]|r[0-9]"
-NAT        = "0x[0-9a-f]+|\d+"
-R_AND_N    = "({})[+-]({})".format(REG, NAT)
-LABEL      = "\w+"
-WS         = ["r7", "r8", "r9", "r10"]
-STACK_PTR  = "r1"
-RET_PTR    = "r2"
-RET_VAL    = "r3"
-SECT_LEN   = 18
-FUNC_LEN   =  8
-HALFW_LEN  = 16
-WORD_LEN   =  4
-HEXDEC     = 16
+REG       = "r1[0-5]|r[0-9]"
+NAT       = "0x[0-9a-f]+|\d+"
+R_AND_N   = "({})[+-]({})".format(REG, NAT)
+LABEL     = "\w+"
+WS        = ["r7", "r8", "r9", "r10"]
+STACK_PTR = "r1"
+RET_PTR   = "r2"
+RET_VAL   = "r3"
+SECT_LEN  = 18
+FUNC_LEN  = 8
+WORD_LEN  = 4
+BYTE_LEN  = 8
+NIBB_MASK = 2 ** (WORD_LEN * BYTE_LEN // 2) - 1
+SIGNED    = 1 << (WORD_LEN * BYTE_LEN - 1)
+HEXDEC    = 16
 
 labels      = []
 label_count = 0
@@ -197,19 +199,19 @@ def JUMP(arg_1):
         return result
 
 def GJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_2,    arg_1,                    WS[3])
-        result += DIV(WS[3],    1 << (2 * HALFW_LEN - 1), WS[3])
-        result += SUB(WS[3],    0x1,                      WS[3])
+        result  = SUB(arg_2,    arg_1,  WS[3])
+        result += DIV(WS[3],    SIGNED, WS[3])
+        result += SUB(WS[3],    0x1,    WS[3])
         result += COPY(arg_3,   WS[2])
-        result += line("zjump", WS[3],                    WS[2])
+        result += line("zjump", WS[3],  WS[2])
 
         return result
 
 def GEJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_1,    arg_2,                    WS[3])
-        result += DIV(WS[3],    1 << (2 * HALFW_LEN - 1), WS[3])
+        result  = SUB(arg_1,    arg_2,  WS[3])
+        result += DIV(WS[3],    SIGNED, WS[3])
         result += COPY(arg_3,   WS[2])
-        result += line("zjump", WS[3],                    WS[2])
+        result += line("zjump", WS[3],  WS[2])
 
         return result
 
@@ -255,13 +257,13 @@ def COPY(arg_1, arg_2):
         if   isinstance(arg_1, str):
                 result  = line("and",   arg_1,          arg_1, arg_2)
         elif isinstance(arg_1, int):
-                lsb     = arg_1  & (2 ** HALFW_LEN - 1)
-                msb     = arg_1 >> HALFW_LEN
-                result  = line("copy",  lsb,            arg_2)
-                result += line("copy",  msb,            WS[0])
-                result += line("copy",  2 ** HALFW_LEN, WS[1])
-                result += line("mult",  WS[0],          WS[1], WS[0])
-                result += line("add",   arg_2,          WS[0], arg_2)
+                lsb     = arg_1  & NIBB_MASK
+                msb     = arg_1 >> (WORD_LEN * BYTE_LEN // 2)
+                result  = line("copy",  lsb,           arg_2)
+                result += line("copy",  msb,           WS[0])
+                result += line("copy",  NIBB_MASK + 1, WS[1])
+                result += line("mult",  WS[0],         WS[1], WS[0])
+                result += line("add",   arg_2,         WS[0], arg_2)
         elif isinstance(arg_1, tuple):
                 result  = COPY(abs(arg_1[1]), arg_2)
                 if arg_1[1] >= 0:
@@ -269,14 +271,14 @@ def COPY(arg_1, arg_2):
                 else:
                         result += line("sub", arg_1[0], arg_2, arg_2)
         elif isinstance(arg_1, list):
-                result  = line("and",   "r0",           "r0",  arg_2)
-                result += line("copy",  "0x20",         WS[0])
-                result += line("copy",  "0x4",          WS[1])
-                result += line("add",   arg_2,          WS[0], WS[0])
-                result += line("add",   WS[0],          WS[1], WS[1])
-                result += line("load",  WS[0],          arg_2)
-                result += line("copy",  "0x0",          WS[0])
-                result += line("zjump", WS[0],          WS[1])
+                result  = line("and",   "r0",          "r0",  arg_2)
+                result += line("copy",  "0x20",        WS[0])
+                result += line("copy",  "0x4",         WS[1])
+                result += line("add",   arg_2,         WS[0], WS[0])
+                result += line("add",   WS[0],         WS[1], WS[1])
+                result += line("load",  WS[0],         arg_2)
+                result += line("copy",  "0x0",         WS[0])
+                result += line("zjump", WS[0],         WS[1])
                 result += line(arg_1[0])
 
         return result
