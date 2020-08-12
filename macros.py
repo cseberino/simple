@@ -31,10 +31,9 @@ NIBB_MASK = 2 ** (WORD_LEN * BYTE_LEN // 2) - 1
 SIGNED    = 1 << (WORD_LEN * BYTE_LEN - 1)
 HEXDEC    = 16
 
-labels      = []
-label_count = 0
-if_labs     = []
-while_labs  = []
+labels     = []
+if_labs    = []
+while_labs = []
 
 def parse_arg(arg):
         result = None
@@ -81,17 +80,16 @@ def line(func, *args):
 
         return line_
 
-def new_label():
-        global label_count
-
-        label_count += 1
-        label        = "_unique_{}".format(label_count)
-        while label in labels:
-                label_count += 1
-                label        = "_unique_{}".format(label_count)
-        labels.append(label)
-
-        return [label]
+def new_label_gen():
+        count = 1
+        label = "_unique_{}".format(count)
+        while True:
+                while label in labels:
+                        count += 1
+                        label  = "_unique_{}".format(count)
+                labels.append(label)
+                yield [label]
+new_label = lambda : next(new_label_gen())
 
 def replace_(asm):
         result = ""
