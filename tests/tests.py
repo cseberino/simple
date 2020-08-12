@@ -3801,61 +3801,6 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
-        def test_ELSE(self):
-                program = \
-"""
-                COPY code_seg_end r1
-                ADD  r1           0x9abc r1
-
-                IF 0x1
-                        COPY 0xdeadbeef r12
-                ELSE
-                        COPY 0x998877aa r12
-                ENDIF
-
-                stop
-
-code_seg_end:   NOTH
-"""
-                output = get_output(program)
-                output = output.decode()
-                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
-                answer = \
-"""
-	r12: 0xdeadbeef
-	r13: 0x00000000
-	r14: 0x00000000
-	r15: 0x00000000
-""".strip()
-                self.assertEqual(output, answer)
-
-                program = \
-"""
-                COPY code_seg_end r1
-                ADD  r1           0x9abc r1
-
-                IF 0x0
-                        COPY 0xdeadbeef r12
-                ELSE
-                        COPY 0x998877aa r12
-                ENDIF
-
-                stop
-
-code_seg_end:   NOTH
-"""
-                output = get_output(program)
-                output = output.decode()
-                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
-                answer = \
-"""
-	r12: 0x998877aa
-	r13: 0x00000000
-	r14: 0x00000000
-	r15: 0x00000000
-""".strip()
-                self.assertEqual(output, answer)
-
         def test_WHILE(self):
                 program = \
 """
@@ -4147,8 +4092,6 @@ code_seg_end:   NOTH
                         IF   0x0
                                 COPY 0xdef r13
                         ENDIF
-                ELSE
-                        COPY 0x998877aa r12
                 ENDIF
 
                 stop

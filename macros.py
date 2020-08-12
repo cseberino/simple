@@ -33,8 +33,8 @@ HEXDEC    = 16
 
 labels      = []
 label_count = 0
-if_inds     = []
-while_inds  = []
+if_labs     = []
+while_labs  = []
 
 def parse_arg(arg):
         result = None
@@ -330,38 +330,24 @@ def IF(*args):
                 result = CALL(*args)
         else:
                 result = COPY(args[0], RET_VAL)
-        if_inds.append(len(labels))
-        result += PUSH(0x1)
-        result += COPY(new_label(), WS[2])
+        if_labs.append(new_label())
+        result += COPY(if_labs[-1], WS[2])
         result += line("zjump",     RET_VAL, WS[2])
-        result += POP(WS[2])
-        result += PUSH(0x0)
-
-        return result
-
-def ELSE():
-        result  = ENDIF()
-        result += LOAD(STACK_PTR, WS[2])
-        result += IF(WS[2])
 
         return result
 
 def ENDIF():
-        index   = if_inds.pop()
-        result  = POP(WS[2])
-        result += (labels[index] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
-
-        return result
+        return (if_labs.pop()[0] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
 def WHILE(*args):
-        while_inds.append(len(labels))
-        result  = (new_label()[0] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
+        while_labs.append(new_label())
+        result  = (while_labs[-1][0] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
         result += IF(*args)
 
         return result
 
 def ENDWHILE():
-        result  = JUMP([labels[while_inds.pop()]])
+        result  = JUMP(while_labs.pop())
         result += ENDIF()
 
         return result
