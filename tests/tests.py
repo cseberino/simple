@@ -4556,4 +4556,114 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           0x9abc r1
+
+                copy  0x0f00 r15
+
+                copy  0xa r12
+                WHILE r12
+
+                        copy  0x8 r13
+                        WHILE r13
+
+                                MOD r13 2 r11
+                                IF r11
+
+                                        copy  0x6 r14
+                                        WHILE r14
+
+                                                MOD r14 2 r11
+                                                IF r11
+
+                                                        ADD r15 1 r15
+                                                ENDIF
+
+                                                SUB r14 1 r14
+                                        ENDWHILE
+                                ENDIF
+
+                                SUB r13 1 r13
+                        ENDWHILE
+
+                        SUB r12 1 r12
+                ENDWHILE
+                COPY 0xdeadbeef r11
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 10 * 17:]
+                answer = \
+"""
+	r11: 0xdeadbeef
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000f78
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           0x9abc r1
+
+                copy  0x0f00 r15
+
+                copy  0xa r12
+                WHILE r12
+
+                        MOD r12 2 r11
+                        IF r11
+
+                                copy  0x8 r13
+                                WHILE r13
+
+                                        MOD r13 2 r11
+                                        IF r11
+
+                                                copy  0x6 r14
+                                                WHILE r14
+
+                                                        MOD r14 2 r11
+                                                        IF r11
+
+                                                                ADD r15 1 r15
+                                                        ENDIF
+
+                                                        SUB r14 1 r14
+                                                ENDWHILE
+                                        ENDIF
+
+                                        SUB r13 1 r13
+                                ENDWHILE
+                        ENDIF
+
+                        SUB r12 1 r12
+                ENDWHILE
+                COPY 0xdeadbeef r11
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 10 * 17:]
+                answer = \
+"""
+	r11: 0xdeadbeef
+	r12: 0x00000000
+	r13: 0x00000000
+	r14: 0x00000000
+	r15: 0x00000f3c
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()
