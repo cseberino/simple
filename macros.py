@@ -23,12 +23,14 @@ WS        = ["r7", "r8", "r9", "r10"]
 STACK_PTR = "r1"
 RET_PTR   = "r2"
 RET_VAL   = "r3"
-SECT_LEN  = 18
 FUNC_LEN  = 8
+SECT_LEN  = 18
 WORD_LEN  = 4
 BYTE_LEN  = 8
 NIBB_MASK = 2 ** (WORD_LEN * BYTE_LEN // 2) - 1
 SIGNED    = 1 << (WORD_LEN * BYTE_LEN - 1)
+SECOND    = (STACK_PTR, WORD_LEN)
+THIRD     = (STACK_PTR, 2 * WORD_LEN)
 HEXDEC    = 16
 
 labels     = []
@@ -146,6 +148,33 @@ def MOD(arg_1, arg_2, arg_3):
         result += MULT(WS[3], arg_3, arg_3)
         result += POP(WS[3])
         result += SUB(WS[3],  arg_3, arg_3)
+
+        return result
+
+def EXP(arg_1, arg_2, arg_3):
+        result  = PUSH(arg_2)
+        result += PUSH(arg_1)
+        result += COPY(0x1 ,   arg_3)
+        result += LOAD(SECOND, WS[3])
+        result += WHILE(WS[3])
+        result += AND(WS[3],   0x1,   WS[3])
+        result += IF(WS[3])
+        result += POP(WS[3])
+        result += MULT(arg_3,  WS[3], arg_3)
+        result += PUSH(WS[3])
+        result += ENDIF()
+        result += LOAD(SECOND, WS[3])
+        result += PUSH(arg_3)
+        result += DIV(WS[3],   0x2,   arg_3)
+        result += STORE(arg_3, THIRD)
+        result += POP(arg_3)
+        result += POP(WS[3])
+        result += MULT(WS[3],  WS[3], WS[3])
+        result += PUSH(WS[3])
+        result += LOAD(SECOND, WS[3])
+        result += ENDWHILE()
+        result += POP(WS[3])
+        result += POP(WS[3])
 
         return result
 

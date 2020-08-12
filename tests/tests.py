@@ -4609,4 +4609,32 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_EXP(self):
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           0x9abc r1
+
+                COPY 0x3 r11
+                EXP  2   r11 r12
+                EXP  r12 10  r13
+                EXP  79  0x5 r14
+                EXP  r11 20  r15
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000008
+	r13: 0x40000000
+	r14: 0xb768278f
+	r15: 0xcfd41b91
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()

@@ -20,10 +20,10 @@ import sys
 
 FUNCS      = ["add", "sub", "mult", "div", "and", "or",
                               "zjump", "gjump", "copy", "load", "store", "stop"]
-CONST_SIZE =   3
+CONST_SIZE = 3
 NIBB_SIZE  = 0.5
-WORD_SIZE  =   4
-HEXADEC    =  16
+WORD_SIZE  = 4
+HEXADEC    = 16
 
 def get_hex(e, size):
         if   isinstance(e, str) and e.startswith("0x"):
@@ -37,7 +37,7 @@ code   = ""
 asm    = macros.replace(open(sys.argv[1]).read())
 words  = [e.strip() for e in asm.split("\n")]
 words  = [e         for e in words if e and not e.startswith("#")]
-labels = [(e.split()[0], 4 * i) for i, e in enumerate(words)]
+labels = [(e.split()[0], WORD_SIZE * i) for i, e in enumerate(words)]
 labels = {e[0][:-1] : e[1] for e in labels if e[0].endswith(":")}
 for e in words:
         e = e.split()[1:] if e.split()[0].endswith(":") else e.split()
