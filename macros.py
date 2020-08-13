@@ -110,6 +110,7 @@ def replace_(asm):
         return result
 
 def replace(asm):
+        labels.extend(re.findall("^{}:".format(LABEL), asm, re.MULTILINE))
         result = asm
         orig   = ""
         while result != orig:
