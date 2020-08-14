@@ -2538,7 +2538,7 @@ label:          stop
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 PUSH  0xdeadbeef
                 PUSH  0x11223344
@@ -3436,7 +3436,7 @@ label:          stop
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY  0x17                   r12
                 XOR   r12       0x24         r13
@@ -3462,7 +3462,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY  0x17                   r12
                 XOR   r12       0x24         r13
@@ -3488,7 +3488,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY 0xd9a3     r12
                 XOR  0xaa88ee11 r12 r12
@@ -3555,7 +3555,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 CALL  adder 0x2 0x4 0x6
 
@@ -3587,7 +3587,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 CALL  nada
 
@@ -3614,7 +3614,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 CALL   adder 0x2 0x4 0x6
 
@@ -3646,7 +3646,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 CALL   adder 0x2 0x4 0x6
 
@@ -3682,7 +3682,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 IF adder 0x2 0x4 0x6
                         COPY 0xdeadbeef r11
@@ -3720,7 +3720,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 IF r1
                         COPY 0xdeadbeef r11
@@ -3746,7 +3746,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 IF 0xabc
                         COPY 0xdeadbeef r11
@@ -3775,7 +3775,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 IF 0x0
                         COPY 0xdeadbeef r11
@@ -3805,7 +3805,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY   0x100 r14
                 COPY   0x5   r15
@@ -3834,7 +3834,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 RSHIFT 0x8 0x1 r12
                 RSHIFT 0x8 0x2 r13
@@ -3858,7 +3858,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 RSHIFT 0xffffffff 0x10 r12
                 RSHIFT 0xffffffff 0x20 r13
@@ -3882,7 +3882,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 RSHIFT 2878234 0x9 r12
                 RSHIFT 2878234 0xc r13
@@ -3906,7 +3906,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY   0x4    r12
                 RSHIFT 0xabcd r12 r12
@@ -3931,7 +3931,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 LSHIFT 0x8 0x1 r12
                 LSHIFT 0x8 0x2 r13
@@ -3955,7 +3955,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 LSHIFT 0xfffffff 0x10 r12
                 LSHIFT 0xfffffff 0x20 r13
@@ -3979,7 +3979,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 LSHIFT 15731 0x6 r12
                 LSHIFT 15731 0xa r13
@@ -4003,7 +4003,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY   0xf      r11
                 LSHIFT 81751875 6   r12
@@ -4029,7 +4029,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY   0x4    r12
                 LSHIFT 0xabcd r12 r12
@@ -4054,7 +4054,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 IF 0x1
                         COPY 0xdeadbeef r12
@@ -4082,7 +4082,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 IF 0x1
                         COPY 0xdeadbeef r12
@@ -4113,7 +4113,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 IF r1
                         COPY 0xdeadbeef r12
@@ -4144,7 +4144,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 IF 0xabc
                         IF 0xabc
@@ -4173,7 +4173,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 IF 0xabc
                         COPY 0x11f r11
@@ -4215,7 +4215,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY  0x100 r12
                 COPY  0x5   r13
@@ -4249,7 +4249,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY 0x100 r15
 
@@ -4283,7 +4283,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 copy  0xe r15
                 copy  0x1 r11
@@ -4328,7 +4328,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           9000 r1
+                ADD  r1           80 r1
 
                 copy  0x8 r15
                 copy  0x1 r11
@@ -4374,7 +4374,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY 0x14 r13
                 COPY 0x3  r14
@@ -4402,7 +4402,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY 0xd9a3     r12
                 MOD  0xaa88ee11 r12   r12
@@ -4429,7 +4429,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY 0x9 r12
                 MOD  r12 2   r12
@@ -4454,7 +4454,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 copy  0x0f00 r15
 
@@ -4502,7 +4502,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 copy  0x0f00 r15
 
@@ -4555,7 +4555,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 copy  0x0f00 r15
 
@@ -4613,7 +4613,7 @@ code_seg_end:   NOTH
                 program = \
 """
                 COPY code_seg_end r1
-                ADD  r1           0x9abc r1
+                ADD  r1           80 r1
 
                 COPY 0x3 r11
                 EXP  2   r11 r12
