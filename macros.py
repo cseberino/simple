@@ -22,15 +22,16 @@ LABEL     = "\w+"
 STACK_PTR = "r1"
 RET_PTR   = "r2"
 RET_VAL   = "r3"
-WS        = ["r4", "r5", "r6", "r7"]
+WORK      = ["r4", "r5", "r6", "r7"]
 FUNC_LEN  = 8
 SECT_LEN  = 18
 BYTE_LEN  = 8
 WORD_LEN  = 4
+SECOND    = (STACK_PTR,     WORD_LEN)
+THIRD     = (STACK_PTR, 2 * WORD_LEN)
 NIBB_MASK = 2 ** (WORD_LEN * BYTE_LEN // 2) - 1
 SIGNED    = 1 << (WORD_LEN * BYTE_LEN - 1)
-SECOND    = (STACK_PTR, WORD_LEN)
-THIRD     = (STACK_PTR, 2 * WORD_LEN)
+NEG_ONE   = 0xffffffff
 HEXDEC    = 16
 
 labels     = []
@@ -124,15 +125,15 @@ def NOTH():
 
 def NEG(arg_1, arg_2):
         result  = NOT(arg_1, arg_2)
-        result += ADD(arg_2, 0x1,  arg_2)
+        result += ADD(arg_2, 1,    arg_2)
 
         return result
 
 def arith_log_macro(func):
         def func_(arg_1, arg_2, arg_3):
-                result  = COPY(arg_1, WS[2])
+                result  = COPY(arg_1, WORK[2])
                 result += COPY(arg_2, arg_3)
-                result += line(func,  WS[2], arg_3, arg_3)
+                result += line(func,  WORK[2], arg_3, arg_3)
 
                 return result
 
@@ -144,102 +145,102 @@ for e in ["ADD", "SUB", "MULT", "DIV", "AND", "OR"]:
 def MOD(arg_1, arg_2, arg_3):
         result  = PUSH(arg_1)
         result += PUSH(arg_2)
-        result += DIV(arg_1,  arg_2, arg_3)
-        result += POP(WS[3])
-        result += MULT(WS[3], arg_3, arg_3)
-        result += POP(WS[3])
-        result += SUB(WS[3],  arg_3, arg_3)
+        result += DIV(arg_1,    arg_2, arg_3)
+        result += POP(WORK[3])
+        result += MULT(WORK[3], arg_3, arg_3)
+        result += POP(WORK[3])
+        result += SUB(WORK[3],  arg_3, arg_3)
 
         return result
 
 def EXP(arg_1, arg_2, arg_3):
         result  = PUSH(arg_2)
         result += PUSH(arg_1)
-        result += COPY(0x1 ,   arg_3)
-        result += LOAD(SECOND, WS[3])
-        result += WHILE(WS[3])
-        result += AND(WS[3],   0x1,   WS[3])
-        result += IF(WS[3])
-        result += POP(WS[3])
-        result += MULT(arg_3,  WS[3], arg_3)
-        result += PUSH(WS[3])
+        result += COPY(1,       arg_3)
+        result += LOAD(SECOND,  WORK[3])
+        result += WHILE(WORK[3])
+        result += AND(WORK[3],  1,       WORK[3])
+        result += IF(WORK[3])
+        result += POP(WORK[3])
+        result += MULT(arg_3,   WORK[3], arg_3)
+        result += PUSH(WORK[3])
         result += ENDIF()
-        result += LOAD(SECOND, WS[3])
+        result += LOAD(SECOND,  WORK[3])
         result += PUSH(arg_3)
-        result += DIV(WS[3],   0x2,   arg_3)
-        result += STORE(arg_3, THIRD)
+        result += DIV(WORK[3],  2,       arg_3)
+        result += STORE(arg_3,  THIRD)
         result += POP(arg_3)
-        result += POP(WS[3])
-        result += MULT(WS[3],  WS[3], WS[3])
-        result += PUSH(WS[3])
-        result += LOAD(SECOND, WS[3])
+        result += POP(WORK[3])
+        result += MULT(WORK[3], WORK[3], WORK[3])
+        result += PUSH(WORK[3])
+        result += LOAD(SECOND,  WORK[3])
         result += ENDWHILE()
-        result += POP(WS[3])
-        result += POP(WS[3])
+        result += POP(WORK[3])
+        result += POP(WORK[3])
 
         return result
 
 def NOT(arg_1, arg_2):
         result  = COPY(arg_1, arg_2)
-        result += MULT(arg_2, 0xffffffff, arg_2)
-        result += SUB(arg_2,  0x1,        arg_2)
+        result += MULT(arg_2, NEG_ONE, arg_2)
+        result += SUB(arg_2,  1,       arg_2)
 
         return result
 
 def XOR(arg_1, arg_2, arg_3):
-        result  = OR(arg_1,  arg_2, WS[3])
-        result += PUSH(WS[3])
-        result += NOT(arg_1, WS[3])
-        result += NOT(arg_2, arg_3)
-        result += OR(WS[3],  arg_3, WS[3])
+        result  = OR(arg_1,    arg_2,   WORK[3])
+        result += PUSH(WORK[3])
+        result += NOT(arg_1,   WORK[3])
+        result += NOT(arg_2,   arg_3)
+        result += OR(WORK[3],  arg_3,   WORK[3])
         result += POP(arg_3)
-        result += AND(arg_3, WS[3], arg_3)
+        result += AND(arg_3,   WORK[3], arg_3)
 
         return result
 
 def LSHIFT(arg_1, arg_2, arg_3):
-        result  = COPY(arg_1, WS[3])
-        result += COPY(arg_2, arg_3)
+        result  = COPY(arg_1,   WORK[3])
+        result += COPY(arg_2,   arg_3)
         result += WHILE(arg_3)
-        result += MULT(WS[3], 0x2,  WS[3])
-        result += SUB(arg_3,  0x1,  arg_3)
+        result += MULT(WORK[3], 2,      WORK[3])
+        result += SUB(arg_3,    1,      arg_3)
         result += ENDWHILE()
-        result += COPY(WS[3], arg_3)
+        result += COPY(WORK[3], arg_3)
 
         return result
 
 def RSHIFT(arg_1, arg_2, arg_3):
-        result  = COPY(arg_1, WS[3])
-        result += COPY(arg_2, arg_3)
+        result  = COPY(arg_1,   WORK[3])
+        result += COPY(arg_2,   arg_3)
         result += WHILE(arg_3)
-        result += DIV(WS[3],  0x2,  WS[3])
-        result += SUB(arg_3,  0x1,  arg_3)
+        result += DIV(WORK[3],  2,      WORK[3])
+        result += SUB(arg_3,    1,      arg_3)
         result += ENDWHILE()
-        result += COPY(WS[3], arg_3)
+        result += COPY(WORK[3], arg_3)
 
         return result
 
 def JUMP(arg_1):
-        result  = COPY(arg_1,   WS[2])
-        result += COPY(0,       WS[0])
-        result += line("zjump", WS[0], WS[2])
+        result  = COPY(arg_1,   WORK[2])
+        result += COPY(0,       WORK[0])
+        result += line("zjump", WORK[0], WORK[2])
 
         return result
 
 def GJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_2,    arg_1,  WS[3])
-        result += DIV(WS[3],    SIGNED, WS[3])
-        result += SUB(WS[3],    0x1,    WS[3])
-        result += COPY(arg_3,   WS[2])
-        result += line("zjump", WS[3],  WS[2])
+        result  = SUB(arg_2,    arg_1,   WORK[3])
+        result += DIV(WORK[3],  SIGNED,  WORK[3])
+        result += SUB(WORK[3],  1,       WORK[3])
+        result += COPY(arg_3,   WORK[2])
+        result += line("zjump", WORK[3], WORK[2])
 
         return result
 
 def GEJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_1,    arg_2,  WS[3])
-        result += DIV(WS[3],    SIGNED, WS[3])
-        result += COPY(arg_3,   WS[2])
-        result += line("zjump", WS[3],  WS[2])
+        result  = SUB(arg_1,    arg_2,   WORK[3])
+        result += DIV(WORK[3],  SIGNED,  WORK[3])
+        result += COPY(arg_3,   WORK[2])
+        result += line("zjump", WORK[3], WORK[2])
 
         return result
 
@@ -248,50 +249,50 @@ LJUMP  = lambda arg_1, arg_2, arg_3 : GJUMP(arg_2,  arg_1, arg_3)
 LEJUMP = lambda arg_1, arg_2, arg_3 : GEJUMP(arg_2, arg_1, arg_3)
 
 def ZJUMP(arg_1, arg_2):
-        result  = COPY(arg_1,   WS[2])
-        result += COPY(arg_2,   WS[3])
-        result += line("zjump", WS[2], WS[3])
+        result  = COPY(arg_1,   WORK[2])
+        result += COPY(arg_2,   WORK[3])
+        result += line("zjump", WORK[2], WORK[3])
 
         return result
 
 def NZJUMP(arg_1, arg_2):
-        result  = COPY(arg_1,       WS[2])
-        result += COPY(new_label(), WS[3])
-        result += line("zjump",     WS[2], WS[3])
-        result += COPY(arg_2,       WS[2])
-        result += JUMP(WS[2])
+        result  = COPY(arg_1,       WORK[2])
+        result += COPY(new_label(), WORK[3])
+        result += line("zjump",     WORK[2], WORK[3])
+        result += COPY(arg_2,       WORK[2])
+        result += JUMP(WORK[2])
         result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
         return result
 
 def EJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_1,    arg_2, WS[3])
-        result += COPY(arg_3,   WS[2])
-        result += line("zjump", WS[3], WS[2])
+        result  = SUB(arg_1,    arg_2,   WORK[3])
+        result += COPY(arg_3,   WORK[2])
+        result += line("zjump", WORK[3], WORK[2])
 
         return result
 
 def NEJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_1,        arg_2, WS[3])
-        result += COPY(new_label(), WS[2])
-        result += line("zjump",     WS[3], WS[2])
-        result += COPY(arg_3,       WS[3])
-        result += JUMP(WS[3])
+        result  = SUB(arg_1,        arg_2,   WORK[3])
+        result += COPY(new_label(), WORK[2])
+        result += line("zjump",     WORK[3], WORK[2])
+        result += COPY(arg_3,       WORK[3])
+        result += JUMP(WORK[3])
         result += (labels[-1] + ":").ljust(SECT_LEN) + NOTH()[SECT_LEN:]
 
         return result
 
 def COPY(arg_1, arg_2):
         if   isinstance(arg_1, str):
-                result  = line("and",   arg_1,          arg_1, arg_2)
+                result  = line("and",   arg_1,         arg_1,   arg_2)
         elif isinstance(arg_1, int):
                 lsb     = arg_1  & NIBB_MASK
                 msb     = arg_1 >> (WORD_LEN * BYTE_LEN // 2)
                 result  = line("copy",  lsb,           arg_2)
-                result += line("copy",  msb,           WS[0])
-                result += line("copy",  NIBB_MASK + 1, WS[1])
-                result += line("mult",  WS[0],         WS[1], WS[0])
-                result += line("add",   arg_2,         WS[0], arg_2)
+                result += line("copy",  msb,           WORK[0])
+                result += line("copy",  NIBB_MASK + 1, WORK[1])
+                result += line("mult",  WORK[0],       WORK[1], WORK[0])
+                result += line("add",   arg_2,         WORK[0], arg_2)
         elif isinstance(arg_1, tuple):
                 result  = COPY(abs(arg_1[1]), arg_2)
                 if arg_1[1] >= 0:
@@ -299,14 +300,14 @@ def COPY(arg_1, arg_2):
                 else:
                         result += line("sub", arg_1[0], arg_2, arg_2)
         elif isinstance(arg_1, list):
-                result  = line("and",   "r0",          "r0",  arg_2)
-                result += line("copy",  "0x20",        WS[0])
-                result += line("copy",  "0x4",         WS[1])
-                result += line("add",   arg_2,         WS[0], WS[0])
-                result += line("add",   WS[0],         WS[1], WS[1])
-                result += line("load",  WS[0],         arg_2)
-                result += line("copy",  "0x0",         WS[0])
-                result += line("zjump", WS[0],         WS[1])
+                result  = line("and",   "r0",          "r0",    arg_2)
+                result += line("copy",  "32",          WORK[0])
+                result += line("copy",  "4",           WORK[1])
+                result += line("add",   arg_2,         WORK[0], WORK[0])
+                result += line("add",   WORK[0],       WORK[1], WORK[1])
+                result += line("load",  WORK[0],       arg_2)
+                result += line("copy",  "0",           WORK[0])
+                result += line("zjump", WORK[0],       WORK[1])
                 result += line(arg_1[0])
 
         return result
@@ -318,16 +319,16 @@ def LOAD(arg_1, arg_2):
         return result
 
 def STORE(arg_1, arg_2):
-        result  = COPY(arg_1,   WS[2])
-        result += COPY(arg_2,   WS[3])
-        result += line("store", WS[2], WS[3])
+        result  = COPY(arg_1,   WORK[2])
+        result += COPY(arg_2,   WORK[3])
+        result += line("store", WORK[2], WORK[3])
 
         return result
 
 def PUSH(arg_1):
         result  = SUB(STACK_PTR, WORD_LEN, STACK_PTR)
-        result += COPY(arg_1,    WS[2])
-        result += line("store",  WS[2],    STACK_PTR)
+        result += COPY(arg_1,    WORK[2])
+        result += line("store",  WORK[2],  STACK_PTR)
 
         return result
 
@@ -359,8 +360,8 @@ def IF(*args):
         else:
                 result = COPY(args[0], RET_VAL)
         if_labs.append(new_label())
-        result += COPY(if_labs[-1], WS[2])
-        result += line("zjump",     RET_VAL, WS[2])
+        result += COPY(if_labs[-1], WORK[2])
+        result += line("zjump",     RET_VAL, WORK[2])
 
         return result
 
