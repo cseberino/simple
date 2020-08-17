@@ -32,7 +32,7 @@ THIRD     = (STACK_PTR, 2 * WORD_LEN)
 NIBB_MASK = 2 ** (WORD_LEN * BYTE_LEN // 2) - 1
 SIGNED    = 1 << (WORD_LEN * BYTE_LEN - 1)
 NEG_ONE   = 0xffffffff
-HEXDEC    = 16
+HEXADEC   = 16
 
 labels     = []
 if_labs    = []
@@ -44,14 +44,14 @@ def parse_arg(arg):
                 result = arg
         elif re.fullmatch(NAT, arg):
                 if arg.startswith("0x"):
-                        result = int(arg, HEXDEC)
+                        result = int(arg, HEXADEC)
                 else:
                         result = int(arg)
         elif re.fullmatch(R_AND_N, arg):
                 reg = re.match(REG, arg).group(0)
                 nat = arg[len(reg) + 1:]
                 if nat.startswith("0x"):
-                        nat = int(nat, HEXDEC)
+                        nat = int(nat, HEXADEC)
                 else:
                         nat = int(nat)
                 if arg[len(reg)] == "-":
