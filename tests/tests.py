@@ -4637,4 +4637,34 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
+        def test_ABS(self):
+                program = \
+"""
+                COPY code_seg_end r1
+                ADD  r1           80 r1
+
+                COPY 0x3        r11
+                COPY 0xfffffffe r12
+                COPY 0xfffe8de6 r15
+                ABS  r11        r13
+                ABS  r12        r14
+                ABS  r15        r15
+
+                stop
+
+code_seg_end:   NOTH
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 10 * 17:]
+                answer = \
+"""
+	r11: 0x00000003
+	r12: 0xfffffffe
+	r13: 0x00000003
+	r14: 0x00000002
+	r15: 0x0001721a
+""".strip()
+                self.assertEqual(output, answer)
+
 unittest.main()

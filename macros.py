@@ -30,7 +30,7 @@ WORD_LEN  = 4
 SECOND    = (STACK_PTR,     WORD_LEN)
 THIRD     = (STACK_PTR, 2 * WORD_LEN)
 NIBB_MASK = 2 ** (WORD_LEN * BYTE_LEN // 2) - 1
-SIGNED    = 1 << (WORD_LEN * BYTE_LEN - 1)
+SIGN_MASK = 1 << (WORD_LEN * BYTE_LEN -  1)
 NEG_ONE   = 0xffffffff
 HEXADEC   = 16
 
@@ -125,7 +125,16 @@ def NOTH():
 
 def NEG(arg_1, arg_2):
         result  = NOT(arg_1, arg_2)
-        result += ADD(arg_2, 1,    arg_2)
+        result += ADD(arg_2, 1,     arg_2)
+
+        return result
+
+def ABS(arg_1, arg_2):
+        result  = AND(arg_1,  SIGN_MASK, WORK[3])
+        result += COPY(arg_1, arg_2)
+        result += IF(WORK[3])
+        result += MULT(arg_2, NEG_ONE,   arg_2)
+        result += ENDIF()
 
         return result
 
@@ -156,24 +165,24 @@ def MOD(arg_1, arg_2, arg_3):
 def EXP(arg_1, arg_2, arg_3):
         result  = PUSH(arg_2)
         result += PUSH(arg_1)
-        result += COPY(1,       arg_3)
-        result += LOAD(SECOND,  WORK[3])
+        result += COPY(1,        arg_3)
+        result += LOAD(SECOND,   WORK[3])
         result += WHILE(WORK[3])
-        result += AND(WORK[3],  1,       WORK[3])
+        result += AND(WORK[3],   1,       WORK[3])
         result += IF(WORK[3])
         result += POP(WORK[3])
-        result += MULT(arg_3,   WORK[3], arg_3)
+        result += MULT(arg_3,    WORK[3], arg_3)
         result += PUSH(WORK[3])
         result += ENDIF()
-        result += LOAD(SECOND,  WORK[3])
+        result += LOAD(SECOND,   WORK[3])
         result += PUSH(arg_3)
-        result += DIV(WORK[3],  2,       arg_3)
-        result += STORE(arg_3,  THIRD)
+        result += DIV(WORK[3],   2,       arg_3)
+        result += STORE(arg_3,   THIRD)
         result += POP(arg_3)
         result += POP(WORK[3])
-        result += MULT(WORK[3], WORK[3], WORK[3])
+        result += MULT(WORK[3],  WORK[3], WORK[3])
         result += PUSH(WORK[3])
-        result += LOAD(SECOND,  WORK[3])
+        result += LOAD(SECOND,   WORK[3])
         result += ENDWHILE()
         result += POP(WORK[3])
         result += POP(WORK[3])
@@ -188,13 +197,13 @@ def NOT(arg_1, arg_2):
         return result
 
 def XOR(arg_1, arg_2, arg_3):
-        result  = OR(arg_1,    arg_2,   WORK[3])
+        result  = OR(arg_1,     arg_2,   WORK[3])
         result += PUSH(WORK[3])
-        result += NOT(arg_1,   WORK[3])
-        result += NOT(arg_2,   arg_3)
-        result += OR(WORK[3],  arg_3,   WORK[3])
+        result += NOT(arg_1,    WORK[3])
+        result += NOT(arg_2,    arg_3)
+        result += OR(WORK[3],   arg_3,   WORK[3])
         result += POP(arg_3)
-        result += AND(arg_3,   WORK[3], arg_3)
+        result += AND(arg_3,    WORK[3], arg_3)
 
         return result
 
@@ -202,8 +211,8 @@ def LSHIFT(arg_1, arg_2, arg_3):
         result  = COPY(arg_1,   WORK[3])
         result += COPY(arg_2,   arg_3)
         result += WHILE(arg_3)
-        result += MULT(WORK[3], 2,      WORK[3])
-        result += SUB(arg_3,    1,      arg_3)
+        result += MULT(WORK[3], 2,       WORK[3])
+        result += SUB(arg_3,    1,       arg_3)
         result += ENDWHILE()
         result += COPY(WORK[3], arg_3)
 
@@ -213,8 +222,8 @@ def RSHIFT(arg_1, arg_2, arg_3):
         result  = COPY(arg_1,   WORK[3])
         result += COPY(arg_2,   arg_3)
         result += WHILE(arg_3)
-        result += DIV(WORK[3],  2,      WORK[3])
-        result += SUB(arg_3,    1,      arg_3)
+        result += DIV(WORK[3],  2,       WORK[3])
+        result += SUB(arg_3,    1,       arg_3)
         result += ENDWHILE()
         result += COPY(WORK[3], arg_3)
 
@@ -228,19 +237,19 @@ def JUMP(arg_1):
         return result
 
 def GJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_2,    arg_1,   WORK[3])
-        result += DIV(WORK[3],  SIGNED,  WORK[3])
-        result += SUB(WORK[3],  1,       WORK[3])
+        result  = SUB(arg_2,    arg_1,     WORK[3])
+        result += DIV(WORK[3],  SIGN_MASK, WORK[3])
+        result += SUB(WORK[3],  1,         WORK[3])
         result += COPY(arg_3,   WORK[2])
-        result += line("zjump", WORK[3], WORK[2])
+        result += line("zjump", WORK[3],   WORK[2])
 
         return result
 
 def GEJUMP(arg_1, arg_2, arg_3):
-        result  = SUB(arg_1,    arg_2,   WORK[3])
-        result += DIV(WORK[3],  SIGNED,  WORK[3])
+        result  = SUB(arg_1,    arg_2,     WORK[3])
+        result += DIV(WORK[3],  SIGN_MASK, WORK[3])
         result += COPY(arg_3,   WORK[2])
-        result += line("zjump", WORK[3], WORK[2])
+        result += line("zjump", WORK[3],   WORK[2])
 
         return result
 
@@ -348,7 +357,7 @@ def CALL(*args):
         return result
 
 def RETURN(arg_1 = False):
-        result  = COPY(arg_1, RET_VAL) if arg_1 else ""
+        result  = COPY(arg_1,   RET_VAL) if arg_1 else ""
         result += POP(RET_PTR)
         result += JUMP(RET_PTR)
 
