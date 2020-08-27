@@ -1713,13 +1713,13 @@ label:          and  r1 r1 r1
 """.strip()
                 self.assertEqual(output, answer)
 
-        def test_DIV(self):
+        def test_UDIV(self):
                 program = \
 """
-                DIV 0x6        0x2        r12
-                DIV 0xdeadbeef 0xdeadbeef r13
-                DIV 0xdeadbeef 0xdeadbeff r14
-                DIV 0x1        0x80000000 r15
+                UDIV 0x6        0x2        r12
+                UDIV 0xdeadbeef 0xdeadbeef r13
+                UDIV 0xdeadbeef 0xdeadbeff r14
+                UDIV 0x1        0x80000000 r15
                 stop
 """
                 output = get_output(program)
@@ -1739,8 +1739,8 @@ label:          and  r1 r1 r1
                 COPY 0x7fffffff r12
                 COPY 0x80000002 r13
                 COPY 0x80000000 r14
-                DIV  r12        r14 r12
-                DIV  r13        r14 r13
+                UDIV r12        r14 r12
+                UDIV r13        r14 r13
                 stop
 """
                 output = get_output(program)
@@ -2277,18 +2277,18 @@ label:          stop
 """.strip()
                 self.assertEqual(output, answer)
 
-        def test_GJUMP(self):
+        def test_UGJUMP(self):
                 program = \
 """
-                copy  0x12    r12
-                copy  0x13    r13
-                copy  0x14    r14
-                copy  0x15    r15
-                GJUMP r13 r12 label
-                copy  0x22    r12
-                copy  0x23    r13
-                copy  0x24    r14
-                copy  0x25    r15
+                copy   0x12    r12
+                copy   0x13    r13
+                copy   0x14    r14
+                copy   0x15    r15
+                UGJUMP r13 r12 label
+                copy   0x22    r12
+                copy   0x23    r13
+                copy   0x24    r14
+                copy   0x25    r15
 label:          stop
 """
                 output = get_output(program)
@@ -2305,15 +2305,15 @@ label:          stop
 
                 program = \
 """
-                copy  0x12 r12
-                copy  0x13 r13
-                copy  0x14 r14
-                copy  0x15 r15
-                GJUMP 0x88 0x77 label
-                copy  0x22 r12
-                copy  0x23 r13
-                copy  0x24 r14
-                copy  0x25 r15
+                copy   0x12 r12
+                copy   0x13 r13
+                copy   0x14 r14
+                copy   0x15 r15
+                UGJUMP 0x88 0x77 label
+                copy   0x22 r12
+                copy   0x23 r13
+                copy   0x24 r14
+                copy   0x25 r15
 label:          stop
 """
                 output = get_output(program)
@@ -2330,15 +2330,15 @@ label:          stop
 
                 program = \
 """
-                copy  label r11
-                copy  0x13  r13
-                copy  0x14  r14
-                copy  0x15  r15
-                GJUMP 0x15  0x14 r11 - 8
-                copy  0x22  r12
-                copy  0x23  r13
-                copy  0x24  r14
-                copy  0x25  r15
+                copy   label r11
+                copy   0x13  r13
+                copy   0x14  r14
+                copy   0x15  r15
+                UGJUMP 0x15  0x14 r11 - 8
+                copy   0x22  r12
+                copy   0x23  r13
+                copy   0x24  r14
+                copy   0x25  r15
 label:          stop
 """
                 output = get_output(program)
@@ -2355,14 +2355,14 @@ label:          stop
 
                 program = \
 """
-                copy  0x1c r12
-                copy  0x0  r13
-                zjump r13  r12
-                copy  0x12 r12
-                copy  0x13 r13
-                copy  0x14 r14
+                copy   0x1c r12
+                copy   0x0  r13
+                zjump  r13  r12
+                copy   0x12 r12
+                copy   0x13 r13
+                copy   0x14 r14
                 stop
-label:          GJUMP 0x22 0x11 0xc
+label:          UGJUMP 0x22 0x11 0xc
 """
                 output = get_output(program)
                 output = output.decode()
@@ -2378,15 +2378,15 @@ label:          GJUMP 0x22 0x11 0xc
 
                 program = \
 """
-                copy  0x0  r12
-                copy  0x13 r13
-                copy  0x14 r14
-                copy  0x15 r15
-                GJUMP r13  0x12 label
-                copy  0x22 r12
-                copy  0x23 r13
-                copy  0x24 r14
-                copy  0x25 r15
+                copy   0x0  r12
+                copy   0x13 r13
+                copy   0x14 r14
+                copy   0x15 r15
+                UGJUMP r13  0x12 label
+                copy   0x22 r12
+                copy   0x23 r13
+                copy   0x24 r14
+                copy   0x25 r15
 label:          stop
 """
                 output = get_output(program)
@@ -2403,15 +2403,15 @@ label:          stop
 
                 program = \
 """
-                copy  label      r11
-                copy  0x13       r13
-                copy  0x14       r14
-                copy  0x15       r15
-                GJUMP r15 - 0x10 r13 - 0x10 r11 - 8
-                copy  0x22       r12
-                copy  0x23       r13
-                copy  0x24       r14
-                copy  0x25       r15
+                copy   label      r11
+                copy   0x13       r13
+                copy   0x14       r14
+                copy   0x15       r15
+                UGJUMP r15 - 0x10 r13 - 0x10 r11 - 8
+                copy   0x22       r12
+                copy   0x23       r13
+                copy   0x24       r14
+                copy   0x25       r15
 label:          stop
 """
                 output = get_output(program)
@@ -2428,15 +2428,15 @@ label:          stop
 
                 program = \
 """
-                copy  label      r11
-                copy  0x13       r13
-                copy  0x14       r14
-                copy  0x15       r15
-                GJUMP r13 - 0x10 r15 - 0x10 r11 - 8
-                copy  0x22       r12
-                copy  0x23       r13
-                copy  0x24       r14
-                copy  0x25       r15
+                copy   label      r11
+                copy   0x13       r13
+                copy   0x14       r14
+                copy   0x15       r15
+                UGJUMP r13 - 0x10 r15 - 0x10 r11 - 8
+                copy   0x22       r12
+                copy   0x23       r13
+                copy   0x24       r14
+                copy   0x25       r15
 label:          stop
 """
                 output = get_output(program)
@@ -2453,15 +2453,15 @@ label:          stop
 
                 program = \
 """
-                copy  label      r11
-                copy  0x13       r13
-                copy  0x14       r14
-                copy  0x15       r15
-                GJUMP r13 - 0x10 r13 - 0x10 r11 - 8
-                copy  0x22       r12
-                copy  0x23       r13
-                copy  0x24       r14
-                copy  0x25       r15
+                copy   label      r11
+                copy   0x13       r13
+                copy   0x14       r14
+                copy   0x15       r15
+                UGJUMP r13 - 0x10 r13 - 0x10 r11 - 8
+                copy   0x22       r12
+                copy   0x23       r13
+                copy   0x24       r14
+                copy   0x25       r15
 label:          stop
 """
                 output = get_output(program)
@@ -2584,14 +2584,213 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
-        def test_GEJUMP(self):
+        def test_UGEJUMP(self):
+                program = \
+"""
+                copy    0x12    r12
+                copy    0x13    r13
+                copy    0x14    r14
+                copy    0x15    r15
+                UGEJUMP r13 r12 label
+                copy    0x22    r12
+                copy    0x23    r13
+                copy    0x24    r14
+                copy    0x25    r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000012
+	r13: 0x00000013
+	r14: 0x00000014
+	r15: 0x00000015
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy    0x12 r12
+                copy    0x13 r13
+                copy    0x14 r14
+                copy    0x15 r15
+                UGEJUMP 0x88 0x77 label
+                copy    0x22 r12
+                copy    0x23 r13
+                copy    0x24 r14
+                copy    0x25 r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000012
+	r13: 0x00000013
+	r14: 0x00000014
+	r15: 0x00000015
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy    label r11
+                copy    0x13  r13
+                copy    0x14  r14
+                copy    0x15  r15
+                UGEJUMP 0x15  0x14 r11 - 8
+                copy    0x22  r12
+                copy    0x23  r13
+                copy    0x24  r14
+                copy    0x25  r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000013
+	r14: 0x00000024
+	r15: 0x00000025
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy    0x1c r12
+                copy    0x0  r13
+                zjump   r13  r12
+                copy    0x12 r12
+                copy    0x13 r13
+                copy    0x14 r14
+                stop
+label:          UGEJUMP 0x22 0x11 0xc
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000012
+	r13: 0x00000013
+	r14: 0x00000014
+	r15: 0x00000000
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy    0x0  r12
+                copy    0x13 r13
+                copy    0x14 r14
+                copy    0x15 r15
+                UGEJUMP r13  0x12 label
+                copy    0x22 r12
+                copy    0x23 r13
+                copy    0x24 r14
+                copy    0x25 r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000013
+	r14: 0x00000014
+	r15: 0x00000015
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy    label      r11
+                copy    0x13       r13
+                copy    0x14       r14
+                copy    0x15       r15
+                UGEJUMP r15 - 0x10 r13 - 0x10 r11 - 8
+                copy    0x22       r12
+                copy    0x23       r13
+                copy    0x24       r14
+                copy    0x25       r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000013
+	r14: 0x00000024
+	r15: 0x00000025
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy    label      r11
+                copy    0x13       r13
+                copy    0x14       r14
+                copy    0x15       r15
+                UGEJUMP r13 - 0x10 r15 - 0x10 r11 - 8
+                copy    0x22       r12
+                copy    0x23       r13
+                copy    0x24       r14
+                copy    0x25       r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000022
+	r13: 0x00000023
+	r14: 0x00000024
+	r15: 0x00000025
+""".strip()
+                self.assertEqual(output, answer)
+
+                program = \
+"""
+                copy    label      r11
+                copy    0x13       r13
+                copy    0x14       r14
+                copy    0x15       r15
+                UGEJUMP r13 - 0x10 r13 - 0x10 r11 - 8
+                copy    0x22       r12
+                copy    0x23       r13
+                copy    0x24       r14
+                copy    0x25       r15
+label:          stop
+"""
+                output = get_output(program)
+                output = output.decode()
+                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
+                answer = \
+"""
+	r12: 0x00000000
+	r13: 0x00000013
+	r14: 0x00000024
+	r15: 0x00000025
+""".strip()
+                self.assertEqual(output, answer)
+
+        def test_ULJUMP(self):
                 program = \
 """
                 copy   0x12    r12
                 copy   0x13    r13
                 copy   0x14    r14
                 copy   0x15    r15
-                GEJUMP r13 r12 label
+                ULJUMP r12 r13 label
                 copy   0x22    r12
                 copy   0x23    r13
                 copy   0x24    r14
@@ -2616,7 +2815,7 @@ label:          stop
                 copy   0x13 r13
                 copy   0x14 r14
                 copy   0x15 r15
-                GEJUMP 0x88 0x77 label
+                ULJUMP 0x77 0x88 label
                 copy   0x22 r12
                 copy   0x23 r13
                 copy   0x24 r14
@@ -2641,7 +2840,7 @@ label:          stop
                 copy   0x13  r13
                 copy   0x14  r14
                 copy   0x15  r15
-                GEJUMP 0x15  0x14 r11 - 8
+                ULJUMP 0x14  0x15 r11 - 8
                 copy   0x22  r12
                 copy   0x23  r13
                 copy   0x24  r14
@@ -2669,7 +2868,7 @@ label:          stop
                 copy   0x13 r13
                 copy   0x14 r14
                 stop
-label:          GEJUMP 0x22 0x11 0xc
+label:          ULJUMP 0x11 0x22 0xc
 """
                 output = get_output(program)
                 output = output.decode()
@@ -2689,7 +2888,7 @@ label:          GEJUMP 0x22 0x11 0xc
                 copy   0x13 r13
                 copy   0x14 r14
                 copy   0x15 r15
-                GEJUMP r13  0x12 label
+                ULJUMP r12  0x13 label
                 copy   0x22 r12
                 copy   0x23 r13
                 copy   0x24 r14
@@ -2714,7 +2913,7 @@ label:          stop
                 copy   0x13       r13
                 copy   0x14       r14
                 copy   0x15       r15
-                GEJUMP r15 - 0x10 r13 - 0x10 r11 - 8
+                ULJUMP r13 - 0x10 r15 - 0x10 r11 - 8
                 copy   0x22       r12
                 copy   0x23       r13
                 copy   0x24       r14
@@ -2739,7 +2938,7 @@ label:          stop
                 copy   0x13       r13
                 copy   0x14       r14
                 copy   0x15       r15
-                GEJUMP r13 - 0x10 r15 - 0x10 r11 - 8
+                ULJUMP r15 - 0x10 r13 - 0x10 r11 - 8
                 copy   0x22       r12
                 copy   0x23       r13
                 copy   0x24       r14
@@ -2764,7 +2963,7 @@ label:          stop
                 copy   0x13       r13
                 copy   0x14       r14
                 copy   0x15       r15
-                GEJUMP r13 - 0x10 r13 - 0x10 r11 - 8
+                ULJUMP r13 - 0x10 r13 - 0x10 r11 - 8
                 copy   0x22       r12
                 copy   0x23       r13
                 copy   0x24       r14
@@ -2776,180 +2975,6 @@ label:          stop
                 output = output[:output.find("memory")].strip()[30 + 11 * 17:]
                 answer = \
 """
-	r12: 0x00000000
-	r13: 0x00000013
-	r14: 0x00000024
-	r15: 0x00000025
-""".strip()
-                self.assertEqual(output, answer)
-
-        def test_LJUMP(self):
-                program = \
-"""
-                copy  0x12    r12
-                copy  0x13    r13
-                copy  0x14    r14
-                copy  0x15    r15
-                LJUMP r12 r13 label
-                copy  0x22    r12
-                copy  0x23    r13
-                copy  0x24    r14
-                copy  0x25    r15
-label:          stop
-"""
-                output = get_output(program)
-                output = output.decode()
-                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
-                answer = \
-"""
-	r12: 0x00000012
-	r13: 0x00000013
-	r14: 0x00000014
-	r15: 0x00000015
-""".strip()
-                self.assertEqual(output, answer)
-
-                program = \
-"""
-                copy  0x12 r12
-                copy  0x13 r13
-                copy  0x14 r14
-                copy  0x15 r15
-                LJUMP 0x77 0x88 label
-                copy  0x22 r12
-                copy  0x23 r13
-                copy  0x24 r14
-                copy  0x25 r15
-label:          stop
-"""
-                output = get_output(program)
-                output = output.decode()
-                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
-                answer = \
-"""
-	r12: 0x00000012
-	r13: 0x00000013
-	r14: 0x00000014
-	r15: 0x00000015
-""".strip()
-                self.assertEqual(output, answer)
-
-                program = \
-"""
-                copy  label r11
-                copy  0x13  r13
-                copy  0x14  r14
-                copy  0x15  r15
-                LJUMP 0x14  0x15 r11 - 8
-                copy  0x22  r12
-                copy  0x23  r13
-                copy  0x24  r14
-                copy  0x25  r15
-label:          stop
-"""
-                output = get_output(program)
-                output = output.decode()
-                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
-                answer = \
-"""
-	r12: 0x00000000
-	r13: 0x00000013
-	r14: 0x00000024
-	r15: 0x00000025
-""".strip()
-                self.assertEqual(output, answer)
-
-                program = \
-"""
-                copy  0x1c r12
-                copy  0x0  r13
-                zjump r13  r12
-                copy  0x12 r12
-                copy  0x13 r13
-                copy  0x14 r14
-                stop
-label:          LJUMP 0x11 0x22 0xc
-"""
-                output = get_output(program)
-                output = output.decode()
-                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
-                answer = \
-"""
-	r12: 0x00000012
-	r13: 0x00000013
-	r14: 0x00000014
-	r15: 0x00000000
-""".strip()
-                self.assertEqual(output, answer)
-
-                program = \
-"""
-                copy  0x0  r12
-                copy  0x13 r13
-                copy  0x14 r14
-                copy  0x15 r15
-                LJUMP r12  0x13 label
-                copy  0x22 r12
-                copy  0x23 r13
-                copy  0x24 r14
-                copy  0x25 r15
-label:          stop
-"""
-                output = get_output(program)
-                output = output.decode()
-                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
-                answer = \
-"""
-	r12: 0x00000000
-	r13: 0x00000013
-	r14: 0x00000014
-	r15: 0x00000015
-""".strip()
-                self.assertEqual(output, answer)
-
-                program = \
-"""
-                copy  label      r11
-                copy  0x13       r13
-                copy  0x14       r14
-                copy  0x15       r15
-                LJUMP r13 - 0x10 r15 - 0x10 r11 - 8
-                copy  0x22       r12
-                copy  0x23       r13
-                copy  0x24       r14
-                copy  0x25       r15
-label:          stop
-"""
-                output = get_output(program)
-                output = output.decode()
-                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
-                answer = \
-"""
-	r12: 0x00000000
-	r13: 0x00000013
-	r14: 0x00000024
-	r15: 0x00000025
-""".strip()
-                self.assertEqual(output, answer)
-
-                program = \
-"""
-                copy  label      r11
-                copy  0x13       r13
-                copy  0x14       r14
-                copy  0x15       r15
-                LJUMP r15 - 0x10 r13 - 0x10 r11 - 8
-                copy  0x22       r12
-                copy  0x23       r13
-                copy  0x24       r14
-                copy  0x25       r15
-label:          stop
-"""
-                output = get_output(program)
-                output = output.decode()
-                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
-                answer = \
-"""
 	r12: 0x00000022
 	r13: 0x00000023
 	r14: 0x00000024
@@ -2957,39 +2982,14 @@ label:          stop
 """.strip()
                 self.assertEqual(output, answer)
 
-                program = \
-"""
-                copy  label      r11
-                copy  0x13       r13
-                copy  0x14       r14
-                copy  0x15       r15
-                LJUMP r13 - 0x10 r13 - 0x10 r11 - 8
-                copy  0x22       r12
-                copy  0x23       r13
-                copy  0x24       r14
-                copy  0x25       r15
-label:          stop
-"""
-                output = get_output(program)
-                output = output.decode()
-                output = output[:output.find("memory")].strip()[30 + 11 * 17:]
-                answer = \
-"""
-	r12: 0x00000022
-	r13: 0x00000023
-	r14: 0x00000024
-	r15: 0x00000025
-""".strip()
-                self.assertEqual(output, answer)
-
-        def test_LEJUMP(self):
+        def test_ULEJUMP(self):
                 program = \
 """
                 copy   0x12    r12
                 copy   0x13    r13
                 copy   0x14    r14
                 copy   0x15    r15
-                LEJUMP r12 r13 label
+                ULEJUMP r12 r13 label
                 copy   0x22    r12
                 copy   0x23    r13
                 copy   0x24    r14
@@ -3010,15 +3010,15 @@ label:          stop
 
                 program = \
 """
-                copy   0x12 r12
-                copy   0x13 r13
-                copy   0x14 r14
-                copy   0x15 r15
-                LEJUMP 0x77 0x88 label
-                copy   0x22 r12
-                copy   0x23 r13
-                copy   0x24 r14
-                copy   0x25 r15
+                copy    0x12 r12
+                copy    0x13 r13
+                copy    0x14 r14
+                copy    0x15 r15
+                ULEJUMP 0x77 0x88 label
+                copy    0x22 r12
+                copy    0x23 r13
+                copy    0x24 r14
+                copy    0x25 r15
 label:          stop
 """
                 output = get_output(program)
@@ -3035,15 +3035,15 @@ label:          stop
 
                 program = \
 """
-                copy   label r11
-                copy   0x13  r13
-                copy   0x14  r14
-                copy   0x15  r15
-                LEJUMP 0x14  0x15 r11 - 8
-                copy   0x22  r12
-                copy   0x23  r13
-                copy   0x24  r14
-                copy   0x25  r15
+                copy    label r11
+                copy    0x13  r13
+                copy    0x14  r14
+                copy    0x15  r15
+                ULEJUMP 0x14  0x15 r11 - 8
+                copy    0x22  r12
+                copy    0x23  r13
+                copy    0x24  r14
+                copy    0x25  r15
 label:          stop
 """
                 output = get_output(program)
@@ -3060,14 +3060,14 @@ label:          stop
 
                 program = \
 """
-                copy   0x1c r12
-                copy   0x0  r13
-                zjump  r13  r12
-                copy   0x12 r12
-                copy   0x13 r13
-                copy   0x14 r14
+                copy    0x1c r12
+                copy    0x0  r13
+                zjump   r13  r12
+                copy    0x12 r12
+                copy    0x13 r13
+                copy    0x14 r14
                 stop
-label:          LEJUMP 0x11 0x22 0xc
+label:          ULEJUMP 0x11 0x22 0xc
 """
                 output = get_output(program)
                 output = output.decode()
@@ -3083,15 +3083,15 @@ label:          LEJUMP 0x11 0x22 0xc
 
                 program = \
 """
-                copy   0x0  r12
-                copy   0x13 r13
-                copy   0x14 r14
-                copy   0x15 r15
-                LEJUMP 0x12 r13 label
-                copy   0x22 r12
-                copy   0x23 r13
-                copy   0x24 r14
-                copy   0x25 r15
+                copy    0x0  r12
+                copy    0x13 r13
+                copy    0x14 r14
+                copy    0x15 r15
+                ULEJUMP 0x12 r13 label
+                copy    0x22 r12
+                copy    0x23 r13
+                copy    0x24 r14
+                copy    0x25 r15
 label:          stop
 """
                 output = get_output(program)
@@ -3108,15 +3108,15 @@ label:          stop
 
                 program = \
 """
-                copy   label      r11
-                copy   0x13       r13
-                copy   0x14       r14
-                copy   0x15       r15
-                LEJUMP r13 - 0x10 r15 - 0x10 r11 - 8
-                copy   0x22       r12
-                copy   0x23       r13
-                copy   0x24       r14
-                copy   0x25       r15
+                copy    label      r11
+                copy    0x13       r13
+                copy    0x14       r14
+                copy    0x15       r15
+                ULEJUMP r13 - 0x10 r15 - 0x10 r11 - 8
+                copy    0x22       r12
+                copy    0x23       r13
+                copy    0x24       r14
+                copy    0x25       r15
 label:          stop
 """
                 output = get_output(program)
@@ -3133,15 +3133,15 @@ label:          stop
 
                 program = \
 """
-                copy   label      r11
-                copy   0x13       r13
-                copy   0x14       r14
-                copy   0x15       r15
-                LEJUMP r15 - 0x10 r13 - 0x10 r11 - 8
-                copy   0x22       r12
-                copy   0x23       r13
-                copy   0x24       r14
-                copy   0x25       r15
+                copy    label      r11
+                copy    0x13       r13
+                copy    0x14       r14
+                copy    0x15       r15
+                ULEJUMP r15 - 0x10 r13 - 0x10 r11 - 8
+                copy    0x22       r12
+                copy    0x23       r13
+                copy    0x24       r14
+                copy    0x25       r15
 label:          stop
 """
                 output = get_output(program)
@@ -3158,15 +3158,15 @@ label:          stop
 
                 program = \
 """
-                copy   label      r11
-                copy   0x13       r13
-                copy   0x14       r14
-                copy   0x15       r15
-                LEJUMP r13 - 0x10 r13 - 0x10 r11 - 8
-                copy   0x22       r12
-                copy   0x23       r13
-                copy   0x24       r14
-                copy   0x25       r15
+                copy    label      r11
+                copy    0x13       r13
+                copy    0x14       r14
+                copy    0x15       r15
+                ULEJUMP r13 - 0x10 r13 - 0x10 r11 - 8
+                copy    0x22       r12
+                copy    0x23       r13
+                copy    0x24       r14
+                copy    0x25       r15
 label:          stop
 """
                 output = get_output(program)

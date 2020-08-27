@@ -148,13 +148,15 @@ def arith_log_macro(func):
 
         return func_
 
-for e in ["ADD", "SUB", "MULT", "DIV", "AND", "OR"]:
+for e in ["ADD", "SUB", "MULT", "AND", "OR"]:
         globals()[e] = arith_log_macro(e.lower())
+
+UDIV = arith_log_macro("div")
 
 def MOD(arg_1, arg_2, arg_3):
         result  = PUSH(arg_1)
         result += PUSH(arg_2)
-        result += DIV(arg_1,    arg_2, arg_3)
+        result += UDIV(arg_1,   arg_2, arg_3)
         result += POP(WORK[3])
         result += MULT(WORK[3], arg_3, arg_3)
         result += POP(WORK[3])
@@ -176,7 +178,7 @@ def EXP(arg_1, arg_2, arg_3):
         result += ENDIF()
         result += LOAD(SECOND,   WORK[3])
         result += PUSH(arg_3)
-        result += DIV(WORK[3],   2,       arg_3)
+        result += UDIV(WORK[3],  2,       arg_3)
         result += STORE(arg_3,   THIRD)
         result += POP(arg_3)
         result += POP(WORK[3])
@@ -222,7 +224,7 @@ def RSHIFT(arg_1, arg_2, arg_3):
         result  = COPY(arg_1,   WORK[3])
         result += COPY(arg_2,   arg_3)
         result += WHILE(arg_3)
-        result += DIV(WORK[3],  2,       WORK[3])
+        result += UDIV(WORK[3], 2,       WORK[3])
         result += SUB(arg_3,    1,       arg_3)
         result += ENDWHILE()
         result += COPY(WORK[3], arg_3)
@@ -236,26 +238,26 @@ def JUMP(arg_1):
 
         return result
 
-def GJUMP(arg_1, arg_2, arg_3):
+def UGJUMP(arg_1, arg_2, arg_3):
         result  = SUB(arg_2,    arg_1,     WORK[3])
-        result += DIV(WORK[3],  SIGN_MASK, WORK[3])
+        result += UDIV(WORK[3], SIGN_MASK, WORK[3])
         result += SUB(WORK[3],  1,         WORK[3])
         result += COPY(arg_3,   WORK[2])
         result += line("zjump", WORK[3],   WORK[2])
 
         return result
 
-def GEJUMP(arg_1, arg_2, arg_3):
+def UGEJUMP(arg_1, arg_2, arg_3):
         result  = SUB(arg_1,    arg_2,     WORK[3])
-        result += DIV(WORK[3],  SIGN_MASK, WORK[3])
+        result += UDIV(WORK[3], SIGN_MASK, WORK[3])
         result += COPY(arg_3,   WORK[2])
         result += line("zjump", WORK[3],   WORK[2])
 
         return result
 
-LJUMP  = lambda arg_1, arg_2, arg_3 : GJUMP(arg_2,  arg_1, arg_3)
+ULJUMP  = lambda arg_1, arg_2, arg_3 : UGJUMP(arg_2,  arg_1, arg_3)
 
-LEJUMP = lambda arg_1, arg_2, arg_3 : GEJUMP(arg_2, arg_1, arg_3)
+ULEJUMP = lambda arg_1, arg_2, arg_3 : UGEJUMP(arg_2, arg_1, arg_3)
 
 def ZJUMP(arg_1, arg_2):
         result  = COPY(arg_1,   WORK[2])
