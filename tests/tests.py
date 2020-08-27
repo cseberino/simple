@@ -4609,17 +4609,17 @@ code_seg_end:   NOTH
 """.strip()
                 self.assertEqual(output, answer)
 
-        def test_EXP(self):
+        def test_UEXP(self):
                 program = \
 """
                 COPY code_seg_end r1
                 ADD  r1           80 r1
 
                 COPY 0x3 r11
-                EXP  2   r11 r12
-                EXP  r12 10  r13
-                EXP  79  0x5 r14
-                EXP  r11 20  r15
+                UEXP 2   r11 r12
+                UEXP r12 10  r13
+                UEXP 79  0x5 r14
+                UEXP r11 20  r15
 
                 stop
 

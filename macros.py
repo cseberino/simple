@@ -164,7 +164,7 @@ def MOD(arg_1, arg_2, arg_3):
 
         return result
 
-def EXP(arg_1, arg_2, arg_3):
+def UEXP(arg_1, arg_2, arg_3):
         result  = PUSH(arg_2)
         result += PUSH(arg_1)
         result += COPY(1,        arg_3)
