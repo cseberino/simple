@@ -2985,15 +2985,15 @@ label:          stop
         def test_ULEJUMP(self):
                 program = \
 """
-                copy   0x12    r12
-                copy   0x13    r13
-                copy   0x14    r14
-                copy   0x15    r15
+                copy    0x12    r12
+                copy    0x13    r13
+                copy    0x14    r14
+                copy    0x15    r15
                 ULEJUMP r12 r13 label
-                copy   0x22    r12
-                copy   0x23    r13
-                copy   0x24    r14
-                copy   0x25    r15
+                copy    0x22    r12
+                copy    0x23    r13
+                copy    0x24    r14
+                copy    0x25    r15
 label:          stop
 """
                 output = get_output(program)

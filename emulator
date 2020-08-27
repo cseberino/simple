@@ -54,7 +54,7 @@ def mult(word, regs, memory):
 
 def div(word, regs, memory):
         a, b, c = get_reg_args(word)
-        regs[c] = int(regs[a] / regs[b]) % MOD_SIZE
+        regs[c] = int(regs[a] / regs[b]) % MOD_SIZE if regs[b] else 0
 
 def and_(word, regs, memory):
         a, b, c = get_reg_args(word)
