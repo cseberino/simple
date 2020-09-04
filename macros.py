@@ -17,7 +17,7 @@ import re
 
 REG       = "r1[0-5]|r[0-9]"
 NAT       = "0x[0-9a-f]+|\d+"
-R_AND_N   = "({})[+-]({})".format(REG, NAT)
+R_AND_N   = f"({REG})[+-]({NAT})"
 LABEL     = "\w+"
 STACK_PTR = "r1"
 RET_PTR   = "r2"
@@ -85,11 +85,11 @@ def line(func, *args):
 
 def new_label_gen():
         count = 1
-        label = "_unique_{}".format(count)
+        label = f"_unique_{count}"
         while True:
                 while label in labels:
                         count += 1
-                        label  = "_unique_{}".format(count)
+                        label  = f"_unique_{count}"
                 labels.append(label)
                 yield [label]
 new_label = lambda : next(new_label_gen())
@@ -111,7 +111,7 @@ def replace_(asm):
         return result
 
 def replace(asm):
-        labels.extend(re.findall("^{}:".format(LABEL), asm, re.MULTILINE))
+        labels.extend(re.findall(f"^{LABEL}:", asm, re.MULTILINE))
         result = asm
         orig   = ""
         while result != orig:

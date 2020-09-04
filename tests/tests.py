@@ -2491,7 +2491,7 @@ label:          stop
                 for i in range(4, 101):
                         macros.new_label()
                 output = macros.labels
-                answer = ["_unique_{}".format(i) for i in range(1, 101)]
+                answer = [f"_unique_{i}" for i in range(1, 101)]
                 self.assertEqual(output, answer)
 
         def test_PUSH(self):

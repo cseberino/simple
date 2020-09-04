@@ -104,9 +104,9 @@ while func != "stop":
         func = step(regs, memory)
 print("registers:\n")
 for i in range(N_REGS):
-        print("\t{:>3}".format("r" + str(i)) + ": {:#010x}".format(regs[i]))
+        print("\t{:>3}".format("r" + str(i)) + f": {regs[i]:#010x}")
 print("\nmemory:\n")
 beg = 0
 for e in textwrap.wrap(memory.hex(), 2 * WORD_SIZE):
-        print("\t{:#010x}: 0x{:0<8}".format(beg, e))
+        print(f"\t{beg:#010x}: 0x{e:0<8}")
         beg += WORD_SIZE
