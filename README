@@ -23,11 +23,10 @@ Instructions begin with four bits denoting functions followed by arguments.  All
 arguments are four bits denoting registers except for the first copy function
 argument which is 24 bits.
 
-The following table describes the behavior of all instructions.  The first
-column gives functions and arguments.  The other columns give the corresponding
-storage data and locations.  [r₁], [r₂] and [r₃] denote register naturals.
-M(<address>) denotes the memory words beginning at the given addresses.  ip
-denotes the instruction pointer:
+The following table describes the actions for all instructions.  r₁, r₂ and r₃
+denote registers.  [r₁], [r₂] and [r₃] denote register values.  M(<address>)
+denotes the memory words beginning at the given addresses.  ip denotes the
+instruction pointer:
 
    instruction             storage data                         storage location
 
