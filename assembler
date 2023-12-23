@@ -34,7 +34,7 @@ def get_hex(e, size):
         return hex(int(e))[2:].zfill(int(2 * size))
 
 code   = ""
-asm    = macros.replace(open(sys.argv[1]).read())
+with open(sys.argv[1]) as f: asm = macros.replace(f.read())
 words  = [e.strip() for e in asm.split("\n")]
 words  = [e         for e in words if e and not e.startswith("#")]
 labels = [(e.split()[0], WORD_SIZE * i) for i, e in enumerate(words)]
@@ -52,4 +52,4 @@ for e in words:
                 code  += code_.ljust(2 * WORD_SIZE, "0")
         else:
                 code  += get_hex(e[0], WORD_SIZE)
-open(sys.argv[1] + ".mem", "wb").write(bytes.fromhex(code))
+with open(sys.argv[1] + ".mem", "wb") as f: f.write(bytes.fromhex(code))

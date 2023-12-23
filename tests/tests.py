@@ -22,18 +22,17 @@ import macros
 import unittest
 import subprocess
 import importlib
-import warnings
 
 def get_code(program):
-        open("__program__", "w").write(program)
+        with open("__program__", "w") as f: f.write(program)
         subprocess.call(["../assembler", "__program__"])
-        code = open("__program__.mem", "rb").read()
+        with open("__program__.mem", "rb") as f: code = f.read()
         subprocess.call(["rm", "__program__", "__program__.mem"])
 
         return code
 
 def get_output(program):
-        open("__program__", "w").write(program)
+        with open("__program__", "w") as f: f.write(program)
         subprocess.call(["../assembler", "__program__"])
         output = subprocess.check_output(["../emulator", "__program__.mem"])
         subprocess.call(["rm", "__program__", "__program__.mem"])
@@ -42,13 +41,10 @@ def get_output(program):
 
 def create_emu_mod():
         subprocess.call(["cp", "../emulator", "__emulator__.py"])
-        contents = open("__emulator__.py").readlines()
-        open("__emulator__.py", "w").write("".join(contents[:-13]))
+        with open("__emulator__.py") as f: contents = f.readlines()
+        with open("__emulator__.py", "w") as f: f.write("".join(contents[:-13]))
 
 class Tester(unittest.TestCase):
-        def setUp(self):
-                warnings.simplefilter("ignore", ResourceWarning)
-
         def test_add_assem(self):
                 program = \
 """

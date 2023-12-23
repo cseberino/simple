@@ -98,7 +98,7 @@ def step(regs, memory):
         return func
 
 regs   = N_REGS * [0]
-memory = bytearray(open(sys.argv[1], "rb").read())
+with open(sys.argv[1], "rb") as f: memory = bytearray(f.read())
 func   = step(regs, memory)
 while func != "stop":
         func = step(regs, memory)
