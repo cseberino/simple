@@ -18,38 +18,47 @@
 import macros
 import sys
 
-FUNCS      = ["add", "sub", "mult", "div", "and", "or",
-                              "zjump", "gjump", "copy", "load", "store", "stop"]
+FUNCS      = ["add", "sub", "mult", "div", "and", "or", "zjump", "gjump",
+                                                "copy", "load", "store", "stop"]
 CONST_SIZE = 3
 NIBB_SIZE  = 0.5
 WORD_SIZE  = 4
-HEXADEC    = 16
+HEX        = 16
 
-def get_hex(e, size):
-        if   isinstance(e, str) and e.startswith("0x"):
-                e = int(e, HEXADEC)
-        elif e in labels:
-                e = labels[e]
+def hex_(e, n_bytes):
+        e = int(e, HEX) if str(e).startswith("0x") else e
 
-        return hex(int(e))[2:].zfill(int(2 * size))
+        return hex(int(e))[2:].zfill(int(2 * n_bytes))
 
-code   = ""
-with open(sys.argv[1]) as f: asm = macros.replace(f.read())
-words  = [e.strip() for e in asm.split("\n")]
-words  = [e         for e in words if e and not e.startswith("#")]
-labels = [(e.split()[0], WORD_SIZE * i) for i, e in enumerate(words)]
-labels = {e[0][:-1] : e[1] for e in labels if e[0].endswith(":")}
-for e in words:
-        e = e.split()[1:] if e.split()[0].endswith(":") else e.split()
-        if e[0] in FUNCS:
-                code_  = get_hex(FUNCS.index(e[0]), NIBB_SIZE)
-                if e[0] == "copy":
-                        code_ += get_hex(e[1], CONST_SIZE)
-                        code_ += get_hex(e[2][1:], NIBB_SIZE)
+def machine_code_word(word, labels):
+        word = word.split()[1:] if ":" in word else word.split()
+        if word[0] in FUNCS:
+                func = hex_(FUNCS.index(word[0]), NIBB_SIZE)
+                if word[0] == "copy":
+                        const = word[1]
+                        const = labels[const] if const in labels else const
+                        const = hex_(const,       CONST_SIZE)
+                        reg   = hex_(word[2][1:], NIBB_SIZE)
+                        word  = func + const + reg
                 else:
-                        for reg in e[1:]:
-                                code_ += get_hex(reg[1:], NIBB_SIZE)
-                code  += code_.ljust(2 * WORD_SIZE, "0")
+                        regs  = [hex_(r[1:], NIBB_SIZE) for r in word[1:]]
+                        pad   = (2 * WORD_SIZE - 1 - len(regs)) * "0"
+                        word  = func + "".join(regs) + pad
         else:
-                code  += get_hex(e[0], WORD_SIZE)
-with open(sys.argv[1] + ".mem", "wb") as f: f.write(bytes.fromhex(code))
+                const = labels[word[0]] if word[0] in labels else word[0]
+                const = hex_(const, WORD_SIZE)
+                word  = const
+
+        return word
+
+def assembler(assembly):
+        words        = [e.strip() for e in macros.replace(assembly).split("\n")]
+        words        = [e for e in words if e and not e.startswith("#")]
+        labels       = {e : WORD_SIZE * i for i, e in enumerate(words)}
+        labels       = {e[:e.find(":")] : labels[e] for e in labels if ":" in e}
+        machine_code = "".join([machine_code_word(e, labels) for e in words])
+
+        return machine_code
+
+with open(sys.argv[1]) as f:
+        print(assembler(f.read()))

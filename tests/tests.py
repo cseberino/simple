@@ -22,20 +22,22 @@ import macros
 import unittest
 import subprocess
 import importlib
+import os
 
 def get_code(program):
-        with open("__program__", "w") as f: f.write(program)
-        subprocess.call(["../assembler", "__program__"])
-        with open("__program__.mem", "rb") as f: code = f.read()
-        subprocess.call(["rm", "__program__", "__program__.mem"])
+        with open("__program__", "w") as f:
+                f.write(program)
+        code = subprocess.check_output(["../assembler", "__program__"]).decode()
+        code = bytes.fromhex(code)
+        os.remove("__program__")
 
         return code
 
 def get_output(program):
-        with open("__program__", "w") as f: f.write(program)
-        subprocess.call(["../assembler", "__program__"])
+        with open("__program__.mem", "wb") as f:
+                f.write(get_code(program))
         output = subprocess.check_output(["../emulator", "__program__.mem"])
-        subprocess.call(["rm", "__program__", "__program__.mem"])
+        os.remove("__program__.mem")
 
         return output
 

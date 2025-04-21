@@ -15,10 +15,10 @@
 
 import re
 
-REG       = "r1[0-5]|r[0-9]"
-NAT       = "0x[0-9a-f]+|\d+"
+REG       = r"r1[0-5]|r[0-9]"
+NAT       = r"0x[0-9a-f]+|\d+"
 R_AND_N   = f"({REG})[+-]({NAT})"
-LABEL     = "\w+"
+LABEL     = r"\w+"
 STACK_PTR = "r1"
 RET_PTR   = "r2"
 RET_VAL   = "r3"
