@@ -23,24 +23,24 @@ Instructions begin with four bits denoting functions followed by arguments.  All
 arguments are four bits denoting registers except for the first copy function
 argument which is 24 bits.
 
-The following table describes the actions for all instructions.  r₁, r₂ and r₃
-denote registers.  [r₁], [r₂] and [r₃] denote register values.  M(<address>)
+The following table describes the actions for all instructions.  r1, r2 and r3
+denote registers.  [r1], [r2] and [r3] denote register values.  M(<address>)
 denotes the memory words beginning at the given addresses.  ip denotes the
 instruction pointer:
 
    instruction             storage data                         storage location
 
-    add( r₁, r₂, r₃)        ([r₁] + [r₂]) % 2³²                  r₃
-    sub( r₁, r₂, r₃)        ([r₁] - [r₂]) % 2³²                  r₃
-    mult(r₁, r₂, r₃)        ([r₁] * [r₂]) % 2³²                  r₃
-    div( r₁, r₂, r₃)        ([r₁] / [r₂]) % 2³²                  r₃
-    and( r₁, r₂, r₃)        [r₁] & [r₂]                          r₃
-    or(  r₁, r₂, r₃)        [r₁] | [r₂]                          r₃
-    copy(k, r₁)             k                                    r₁
-    zjump(r₁, r₂)           [r₂] - 4 if [r₁] = 0    else ip      ip
-    gjump(r₁, r₂, r₃)       [r₃] - 4 if [r₁] > [r₂] else ip      ip
-    load( r₁, r₂)           M([r₁])                              r₂
-    store(r₁, r₂)           [r₁]                                 M([r₂])
+    add(r1, r2, r3)         ([r1] + [r2]) % 2^32                 r3
+    sub(r1, r2, r3)         ([r1] - [r2]) % 2^32                 r3
+    mult(r1, r2, r3)        ([r1] * [r2]) % 2^32                 r3
+    div(r1, r2, r3)         ([r1] / [r2]) % 2^32                 r3
+    and(r1, r2, r3)         [r1] & [r2]                          r3
+    or(r1, r2, r3)          [r1] | [r2]                          r3
+    copy(k, r1)             k                                    r1
+    zjump(r1, r2)           [r2] - 4 if [r1] = 0    else ip      ip
+    gjump(r1, r2, r3)       [r3] - 4 if [r1] > [r2] else ip      ip
+    load(r1, r2)            M([r1])                              r2
+    store(r1, r2)           [r1]                                 M([r2])
     stop()
 
 Assembly lines specify words unless they are blank, contain only whitespace, or,
